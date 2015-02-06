@@ -62,8 +62,18 @@
   }
   
      function GenerateRound() {
+         var round_number= document.getElementById("rounds").value;
+    var quarter_number = document.getElementById("quarter").value;
+    var sides_per_round =2;
+    if (document.getElementById("radio_2").checked){
+      sides_per_round=2;
+    }
+    else{
+      sides_per_round =4;
+    }
+    var limit_inter = document.getElementById("checkbox_aff").checked;
     google.script.run.withSuccessHandler()
-        .withFailureHandler(showError).generateInitialSheets();
+        .withFailureHandler(showError).pairingGenerator(round_number,quarter_number,sides_per_round,limit_inter);
   }
   
   /*
