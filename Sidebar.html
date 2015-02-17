@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons.css">
 <h1>Configuration</h1>
-<b>Please define the number of rounds for the tournament followed by the quarter-finals round :</b>
+<b>Define rounds for the tournament :</b>
 <div class="block form-group">
 <div class="inline form-group">
   <label for="rounds">Round number</label>
   <input type="number" id="rounds" style="width: 90px;" value="7" min="1" max="20">
-</div>
-<div class="inline form-group">
-  <label for="quarter">Quarter Finals round</label>
+  </div>
+  <div class="inline form-group">
+  <label for="quarter">quarter finals round</label>
   <input type="number" id="quarter" style="width: 60px;" value="5" min="1" max="18">
 </div>
 </div>
-<b>Are the rounds comprised of two opposing or four opposing teams ?</b>
+<b>Rounds comprised of two opposing or four opposing teams ?</b>
 <div class="block form-group">
 <div>
   <input type="radio" name="radio-a" id="radio_2" checked>
@@ -24,17 +24,23 @@
 </div>
 <div>
   <input type="checkbox" id="checkbox_aff" checked>
-  <label for="checkbox_aff">Prevent random inter affiliation matches before Quarter</label>
+  <label for="checkbox_aff">Prevent same affiliation matches before quarter-finals</label>
 </div>
-<button class="action" onclick="GenerateScoreboard()">Generate Scoreboard</button>
+<button class="action" id="scoreBoardGeneration">Generate Scoreboard</button>
 </div>
 <h1>Interaction</h1>
-<b>This button generates the pairings for the rounds. Disabled if insufficient data was entered</b>
+Generates pairings for the rounds if possible :
 <div class="block form-group">
-<button class="action" onclick="GenerateRound()">Generate Round</button>
+<button class="action" id="roundGeneration">Generate Round</button>
+</div>
+Integrates data for next round :
+<div class="block form-group">
+<button class="action" id="dataIntegration">Integrate data</button>
 </div>
 <div class="sidebar bottom">
-<span class="gray branding-text">By Ashley Manraj from Ecole Polytechnique de Montreal for PolyDebat</span>
+<img alt="Add-on logo" class="logo" width="120" height="120"
+      src="http://static.wixstatic.com/media/2f3f82_911f1778d0fd49349a292345cd9484c5.png_srz_p_182_180_75_22_0.50_1.20_0.00_png_srz">
+<b>By Ashley Manraj</b>
 </div>
 
 
@@ -42,11 +48,16 @@
 </script>
 <script>
   /**
-   * On document load, assign click handlers to each button and try to load the
-   * user's origin and destination language preferences if previously set.
+   * On document load, assign click handlers to each button.
    */
-   
+   $(function() {
+    $('#scoreBoardGeneration').click(GenerateScoreboard);
+    $('#roundGeneration').click(GenerateRound);
+    $('#dataIntegration').click(IntegratesData);
+   });
    function GenerateScoreboard() {
+    this.disabled = true;
+    $('#error').remove();
     var round_number= document.getElementById("rounds").value;
     var quarter_number = document.getElementById("quarter").value;
     var sides_per_round =2;
@@ -57,12 +68,26 @@
       sides_per_round =4;
     }
     var limit_inter = document.getElementById("checkbox_aff").checked;
-    google.script.run.withSuccessHandler()
-        .withFailureHandler(showError).acquireData(round_number,quarter_number,sides_per_round,limit_inter);
+        google.script.run
+        .withSuccessHandler(
+          function(msg, element) {
+          //  $('#translated-text').val(translatedText);
+            element.disabled = false;
+            
+          })
+        .withFailureHandler(
+          function(msg, element) {
+            showError(msg, $('#scoreBoardGeneration'));
+            element.disabled = false;
+          })
+        .withUserObject(this)
+        .acquireData(round_number,quarter_number,sides_per_round,limit_inter);
   }
   
-     function GenerateRound() {
-         var round_number= document.getElementById("rounds").value;
+     function GenerateRound() { 
+    this.disabled = true;
+    $('#error').remove();
+    var round_number= document.getElementById("rounds").value;
     var quarter_number = document.getElementById("quarter").value;
     var sides_per_round =2;
     if (document.getElementById("radio_2").checked){
@@ -72,8 +97,46 @@
       sides_per_round =4;
     }
     var limit_inter = document.getElementById("checkbox_aff").checked;
-    google.script.run.withSuccessHandler()
-        .withFailureHandler(showError).pairingGenerator(round_number,quarter_number,sides_per_round,limit_inter);
+         google.script.run
+        .withSuccessHandler(
+          function(msg, element) {
+          //  $('#translated-text').val(translatedText);
+            element.disabled = false;
+          })
+        .withFailureHandler(
+          function(msg, element) {
+            showError(msg, $('#roundGeneration'));
+            element.disabled = false;
+          })
+        .withUserObject(this)
+        .pairingGenerator(round_number,quarter_number,sides_per_round,limit_inter);
+  }
+  function IntegratesData() { 
+    this.disabled = true;
+    $('#error').remove();
+    var round_number= document.getElementById("rounds").value;
+    var quarter_number = document.getElementById("quarter").value;
+    var sides_per_round =2;
+    if (document.getElementById("radio_2").checked){
+      sides_per_round=2;
+    }
+    else{
+      sides_per_round =4;
+    }
+    var limit_inter = document.getElementById("checkbox_aff").checked;
+         google.script.run
+        .withSuccessHandler(
+          function(msg, element) {
+          //  $('#translated-text').val(translatedText);
+            element.disabled = false;
+          })
+        .withFailureHandler(
+          function(msg, element) {
+            showError(msg, $('#dataIntegration'));
+            element.disabled = false;
+          })
+        .withUserObject(this)
+        .dataIntegration(round_number,quarter_number,sides_per_round,limit_inter);
   }
   
   /*
