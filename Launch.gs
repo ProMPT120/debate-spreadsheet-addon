@@ -20,16 +20,17 @@ var ROUND_NUMBER = 7;
 var QUARTER_ROUND_NUMBER = 5;
 var SIDES_PER_ROUND = 2;
 var LIMIT_INTER_AFF_ROUNDS = true;
-var TEAM_NUMBER = 10;
-var PLAYER_NUMBER = 20;
-
+var TEAM_NUMBER = 24;
+var PLAYER_NUMBER = 28;
 
 // This method adds a custom menu item to run the script
 function onOpen() {
   SpreadsheetApp.getUi().createAddonMenu()
       .addItem('Start', 'showSidebar')
       .addSeparator()
-      .addItem('Format sheets', 'generateInitialSheets')
+      .addItem('Create sheet Debater', 'generateSheetDebater')
+      .addItem('Create sheet Adjudicator', 'generateSheetAdjudicator')
+      .addItem('Create sheet Room', 'generateSheetRoom')
       .addToUi();
 }
 
@@ -65,7 +66,8 @@ function acquireData(round_number,quarter_number,sides_per_round,limit_inter) {
   SpreadsheetApp.flush();
   //copyValuesToRange(sheet, column, columnEnd, row, rowEnd)
   //ss.getSheetByName(SHEET_DEBATER).getRange("B3:B").copyTo(ss.getSheetByName(SHEET_SCOREBOARD).getRange("A4"), {contentsOnly:true});
-  removeDuplicatesCopy(SHEET_DEBATER,SHEET_SCOREBOARD,'B3:B','A4:A');
+  removeDuplicatesCopy(SHEET_DEBATER,SHEET_SCOREBOARD,'B3:B','B4:B');
+  setReducedAffList();
   createTeamStatsSheet();
   removeDuplicatesCopy(SHEET_DEBATER,SHEET_TEAMSTATS,'B3:B','A3:A');
   createPlayerStatsSheet();
@@ -261,9 +263,7 @@ function obtainAffiliationDebater(teamName){
   }
   throw "Error : Affiliation not found to teamName " + teamName;
 }
-/*
-* Display function
-*/
+
 
 /* 
 *  Function to obtain affiliation of an adjudicator from Adjudicator list
@@ -286,33 +286,6 @@ function randomIndexTeam(maxIndex)
 {
   return Math.ceil(Math.random() *(Number(maxIndex)));//Reducing 1 to team number because highest array index is TEAM_NUMBER-1
 }
-/*
-* Function to array sorted array of affiliation with numbers
-*/
-function obtainAffiliationNumbers()
-{
-  var sheet = ss.getSheetByName(SHEET_DEBATER);
-  var data = sheet.getRange(3,1,PLAYER_NUMBER,1).getValues();
-  
-  var newData = new Array();
-  var Data = new Array();
-  for(i in data){
-    var row = data[i];
-    var duplicate = false;
-    for(j in newData){
-      if(row.join() == newData[j].join()){
-        duplicate = true;
-      }
-    }
-    if(!duplicate){
-      newData.push(row);
-    }
-  }
-  //newData.sort(function(a, b){return b-a});
-  Browser.msgBox("Affiliation "+ newData[0][0] + " number "+newData[0][1]+"Affiliation2 "+ newData[1][0] + " number "+newData[1][1] );
-  
-  
-}
 
 
 function pairingGenerator(round_number,quarter_number,sides_per_round,limit_inter){
@@ -325,7 +298,7 @@ function pairingGenerator(round_number,quarter_number,sides_per_round,limit_inte
   }
   obtainNumberTeams();
   obtainNumberPlayers();
-  obtainAffiliationNumbers();
+  //obtainAffiliationNumbers();
   var scoreBoardSheet = ss.getSheetByName(SHEET_SCOREBOARD);
   var currentRound=scoreBoardSheet.getRange("C2").getValue();
   
@@ -412,16 +385,7 @@ function dataIntegration(round_number,quarter_number,sides_per_round,limit_inter
   
   
 }
- /*
- * function to initialise the spreadsheets to acquire data.
- */
-  function generateInitialSheets (){
-    createSheet(SHEET_DEBATER);
-    createSheet(SHEET_ROOM);
-    createSheet(SHEET_ADJU);
-    SpreadsheetApp.flush();
-    validateRoomAdju();
-  }
+
 
 /*
 var range = sheet.getRange(1, 1, 3);

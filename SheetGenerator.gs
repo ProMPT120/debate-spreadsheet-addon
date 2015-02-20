@@ -1,4 +1,26 @@
 
+n to initialise the spreadsheet debater
+ */
+  function generateSheetDebater (){
+    createSheet(SHEET_DEBATER);
+    SpreadsheetApp.flush();
+  }
+/*
+ * function to initialise the spreadsheet Room
+ */
+function generateSheetRoom (){
+    createSheet(SHEET_ROOM);
+    SpreadsheetApp.flush();
+    validateRoom();
+  }
+/*
+ * function to initialise the spreadsheet adjudicator
+ */
+function generateSheetAdjudicator (){
+    createSheet(SHEET_ADJU);
+    SpreadsheetApp.flush();
+    validateAdjudicator();
+  }
 /*
  * function to create the sheet with the name in parameter
  * @param {string} sheetName name of the sheet to create and add or clear if existing.
@@ -82,29 +104,29 @@ function setConfiguration()
         ss.insertSheet(SHEET_SCOREBOARD, ss.getNumSheets());
   }
     var headersScoreboardside2 = [
-    ['Scoreboard', '', '','',''],['Rounds registered', '', '0','',''],
-      ['Team Name', 'Aggregate Score','Performance Average','Side Gov number','Side OPP number']
+    ['Scoreboard', '', '','','',''],['Rounds registered', '', '0','','',''],
+      ['Affiliation','Team Name', 'Aggregate Score','Performance Average','Side Gov number','Side OPP number']
   ];
    var headersScoreboardside4 = [
-    ['Scoreboard', '', '','','','',''],['Rounds registered', '', '','0','','',''],
-      ['Team Name', 'Aggregate Score','Performance Average','Open Gov number','Open OPP number','Close Gov number','Close Opp number']
+    ['Scoreboard', '', '','','','','',''],['Rounds registered', '', '','0','','','',''],
+      ['Affiliation','Team Name', 'Aggregate Score','Performance Average','Open Gov number','Open OPP number','Close Gov number','Close Opp number']
   ];
   if( SIDES_PER_ROUND==2)
   {
   // Format the new sheet for 2 side
-    directionsSheet.getRange(1, 1, headersScoreboardside2.length, 5).setValues(headersScoreboardside2);
-    directionsSheet.setColumnWidth(1, 300);directionsSheet.setColumnWidth(2, 200);
-    directionsSheet.setColumnWidth(3, 200); directionsSheet.setColumnWidth(4, 150);
-    directionsSheet.setColumnWidth(5, 150);
-    setAlternatingRowBackgroundColors_(directionsSheet.getRange(3,1,TEAM_NUMBER,5), '#ffffff', '#eeeeee');
+    directionsSheet.getRange(1, 1, headersScoreboardside2.length, 6).setValues(headersScoreboardside2);
+    directionsSheet.setColumnWidth(1, 250);directionsSheet.setColumnWidth(2, 250);directionsSheet.setColumnWidth(3, 200);
+    directionsSheet.setColumnWidth(4, 200); directionsSheet.setColumnWidth(5, 150);
+    directionsSheet.setColumnWidth(6, 150);directionsSheet.setColumnWidth(7, 150);
+    setAlternatingRowBackgroundColors_(directionsSheet.getRange(3,1,TEAM_NUMBER,6), '#ffffff', '#eeeeee');
   }
    else{
     // Format applied for 4 side
-    directionsSheet.getRange(1, 1, headersScoreboardside4.length, 7).setValues(headersScoreboardside4);
-    directionsSheet.setColumnWidth(1, 300);directionsSheet.setColumnWidth(2, 200);
-    directionsSheet.setColumnWidth(3, 200); directionsSheet.setColumnWidth(4, 150);
-    directionsSheet.setColumnWidth(5, 150);directionsSheet.setColumnWidth(6, 150); directionsSheet.setColumnWidth(7, 150);
-    setAlternatingRowBackgroundColors_(directionsSheet.getRange(3,1,TEAM_NUMBER,7), '#ffffff', '#eeeeee');
+    directionsSheet.getRange(1, 1, headersScoreboardside4.length, 8).setValues(headersScoreboardside4);
+    directionsSheet.setColumnWidth(1, 250);directionsSheet.setColumnWidth(2, 250);directionsSheet.setColumnWidth(3, 200);
+    directionsSheet.setColumnWidth(4, 200); directionsSheet.setColumnWidth(5, 150);
+    directionsSheet.setColumnWidth(6, 150);directionsSheet.setColumnWidth(7, 150); directionsSheet.setColumnWidth(8, 150);
+    setAlternatingRowBackgroundColors_(directionsSheet.getRange(3,1,TEAM_NUMBER,8), '#ffffff', '#eeeeee');
    }
     directionsSheet.getRange('A1:B1').merge().setBackground('#ddddee');
     directionsSheet.getRange('A2:B2').merge().setBackground('#eeeeee');
@@ -116,14 +138,14 @@ function setConfiguration()
     directionsSheet.getRange('A2:G').setNumberFormat('0');
     directionsSheet.setFrozenRows(3);
     var scoreboard = ss.getSheetByName(SHEET_SCOREBOARD);
-    var data = scoreboard.getRange("B4:E");
+    /*var data = scoreboard.getRange("C4:G");
    
     rule = SpreadsheetApp.newDataValidation()
      .requireNumberGreaterThanOrEqualTo(0)
      .setAllowInvalid(false)
      .setHelpText('Number must be superior to 0')
      .build();
-    data.setDataValidation(rule);
+    data.setDataValidation(rule);*/
    
     // Validation of scoreboard number data.  
 }
@@ -131,17 +153,9 @@ function setConfiguration()
 /*
  * function to force specific number values for numeric assigned data in the spreadsheet adjudicator and room.
  */
-function validateRoomAdju() {
+function validateRoom() {
   // Set a rule for the cell B4 to be a number between 1 and 100.
-  var adju = ss.getSheetByName(SHEET_ADJU);
-  var room = ss.getSheetByName(SHEET_ROOM)
-  var cell = adju.getRange('C3:C');
-  var rule = SpreadsheetApp.newDataValidation()
-     .requireNumberBetween(1, 3)
-     .setAllowInvalid(false)
-     .setHelpText('Number must be between 1 and 3. 1 New - 3 Experienced')
-     .build();
-  cell.setDataValidation(rule);
+  var room = ss.getSheetByName(SHEET_ROOM);
   cell = room.getRange('B3:B');
   rule = SpreadsheetApp.newDataValidation()
      .requireNumberBetween(1, 3)
@@ -150,7 +164,19 @@ function validateRoomAdju() {
      .build();
   cell.setDataValidation(rule);
 }
-
+/*
+ * function to force specific number values for numeric assigned data in the spreadsheet adjudicator
+ */
+function validateAdjudicator(){
+ var adju = ss.getSheetByName(SHEET_ADJU);
+  var cell = adju.getRange('C3:C');
+  var rule = SpreadsheetApp.newDataValidation()
+     .requireNumberBetween(1, 3)
+     .setAllowInvalid(false)
+     .setHelpText('Number must be between 1 and 3. 1 New - 3 Experienced')
+     .build();
+  cell.setDataValidation(rule);
+}
 
 
 /*
@@ -268,3 +294,28 @@ function createPairingSheet(pairingName){
     }
     directionsSheet.setFrozenRows(2);  
 }
+/*
+* Function to set in scoreboard the reduced affiliation list next to unique team list
+*
+*/
+function setReducedAffList()
+{ 
+   var scoreBoardSheet = ss.getSheetByName(SHEET_SCOREBOARD);
+   var range = scoreBoardSheet.getRange(4, 2, TEAM_NUMBER);
+   var data = range.getValues();
+   var reduced_affiliation=createArray(TEAM_NUMBER,1);
+   for(var i in data)
+   {
+     reduced_affiliation[i][0]=obtainAffiliationDebater(data[i]);
+   }
+  ss.getSheetByName(SHEET_SCOREBOARD).getRange(4,1,reduced_affiliation.length,1).setValues(reduced_affiliation);
+}
+
+/*
+function toObject(arr) {
+  var rv = {};
+  for (var i = 0; i < arr.length; ++i)
+    rv[i] = arr[i];
+  return rv;
+}*/
+
