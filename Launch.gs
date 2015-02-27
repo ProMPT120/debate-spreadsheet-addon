@@ -20,8 +20,10 @@ var ROUND_NUMBER = 7;
 var QUARTER_ROUND_NUMBER = 5;
 var SIDES_PER_ROUND = 2;
 var LIMIT_INTER_AFF_ROUNDS = true;
-var TEAM_NUMBER = 24;
-var PLAYER_NUMBER = 28;
+var TEAM_NUMBER = 16;
+var PLAYER_NUMBER = 32;
+var ROOM_NUMBER=32;
+var ADJUDICATOR_NUMBER=14;
 
 // This method adds a custom menu item to run the script
 function onOpen() {
@@ -58,20 +60,21 @@ function acquireData(round_number,quarter_number,sides_per_round,limit_inter) {
   if(QUARTER_ROUND_NUMBER>ROUND_NUMBER){
     throw "quarter finals "+QUARTER_ROUND_NUMBER + " musn't be inferior to round number "+ROUND_NUMBER;
   }
-  // var ControlMessage = "ROUND " + ROUND_NUMBER + " QUARTER " + QUARTER_ROUND_NUMBER + " SIDES " + SIDES_PER_ROUND + "LIMIT " + LIMIT_INTER_AFF_ROUNDS; 
-  // Browser.msgBox(ControlMessage);
   obtainNumberTeams();
   obtainNumberPlayers();
+  obtainNumberAdjudicator();
   createScoreboardSheet();
   SpreadsheetApp.flush();
-  //copyValuesToRange(sheet, column, columnEnd, row, rowEnd)
-  //ss.getSheetByName(SHEET_DEBATER).getRange("B3:B").copyTo(ss.getSheetByName(SHEET_SCOREBOARD).getRange("A4"), {contentsOnly:true});
   removeDuplicatesCopy(SHEET_DEBATER,SHEET_SCOREBOARD,'B3:B','B4:B');
   setReducedAffList();
   createTeamStatsSheet();
   removeDuplicatesCopy(SHEET_DEBATER,SHEET_TEAMSTATS,'B3:B','A3:A');
   createPlayerStatsSheet();
-  removeDuplicatesCopy(SHEET_DEBATER,SHEET_PLAYERSTATS,'C3:C','A3:A');
+  simpleCopy(SHEET_DEBATER,SHEET_PLAYERSTATS,'C3:C','B3:B');
+  simpleCopy(SHEET_DEBATER,SHEET_PLAYERSTATS,'B3:B','A3:A');
+  var range=ss.getSheetByName(SHEET_PLAYERSTATS).getRange(3,1,PLAYER_NUMBER,4+QUARTER_ROUND_NUMBER);//Ordering playerstats by team
+  range.sort([{column: 1, ascending: false}, {column: 2, ascending: false}]);
+  applyAlternatingColoring(SHEET_PLAYERSTATS,3,PLAYER_NUMBER,4+QUARTER_ROUND_NUMBER);//sheetName,initRow,rowNum,colNum
   SpreadsheetApp.flush();
 }
 /**
@@ -112,7 +115,7 @@ function showSidebar() {
   return elements;
   }
 /**
-* Function to obtain the number of teams registered
+* Function to set the number of teams registered to global variable
 *
 */
 function obtainNumberTeams(){
@@ -134,15 +137,71 @@ function obtainNumberTeams(){
       number++;
     }
   }
-  //var ControlMessage = "Team Number " + (number); 
-  //Browser.msgBox(ControlMessage);
-  TEAM_NUMBER=number;// We remove 1 for the empty team name
+  TEAM_NUMBER=number;
+}
+/**
+* Function to set the number of adjudicators registered to global variable
+*
+*/
+function obtainNumberAdjudicator(){
+   var directionsSheet = ss.getSheetByName(SHEET_ADJU);
+  var rangeElements = directionsSheet.getRange("B3:B");
+  var data = rangeElements.getValues();
+  var number =0;
+  var newData = new Array();
+  for(i in data){
+    var row = data[i];
+    var duplicate = false;
+    for(j in newData){
+      if(row.join() == newData[j].join()){
+        duplicate = true;
+        throw "Adjudicator duplicated name detected : "+row +" in Room sheet at line : "+Number(3+i);
+      }
+      if(row==""){
+        duplicate=true;
+      }
+    }
+    if(!duplicate){
+      newData.push(row);
+      number++;
+    }
+  }
+  ADJUDICATOR_NUMBER=number;
+}
+/**
+* Function to set the number of rooms registered to global variable
+*
+*/
+function obtainNumberRooms(){
+    var directionsSheet = ss.getSheetByName(SHEET_ROOM);
+  var rangeElements = directionsSheet.getRange("A3:A");
+  var data = rangeElements.getValues();
+  var number =0;
+  var newData = new Array();
+  for(i in data){
+    var row = data[i];
+    var duplicate = false;
+    for(j in newData){
+      if(row.join() == newData[j].join()){
+        duplicate = true;
+        throw "Room duplicated name detected : "+row +" in Room sheet at line : "+Number(3+i);
+      }
+      if(row==""){
+        duplicate=true;
+      }
+    }
+    if(!duplicate){
+      newData.push(row);
+      number++;
+    }
+  }
+  ROOM_NUMBER=number;
 }
 /*
-* Function to set the number of players
+* Function to set the number of players registered to global variable
 */
 function obtainNumberPlayers(){
-    var directionsSheet = ss.getSheetByName(SHEET_DEBATER);
+  var directionsSheet = ss.getSheetByName(SHEET_DEBATER);
   var rangeElements = directionsSheet.getRange("C3:C");
   var data = rangeElements.getValues();
   var number =0;
@@ -151,8 +210,12 @@ function obtainNumberPlayers(){
     var row = data[i];
     var duplicate = false;
     for(j in newData){
-      if(row.join() == newData[j].join()||row==""){
+      if(row.join() == newData[j].join()){
         duplicate = true;
+        throw "Debater name: "+row +" isn't allowed to be in multiple teams";
+      }
+      if(row==""){
+        duplicate=true;
       }
     }
     if(!duplicate){
@@ -160,9 +223,7 @@ function obtainNumberPlayers(){
       number++;
     }
   }
-  //var ControlMessage = "Team Number " + (number); 
-  //Browser.msgBox(ControlMessage);
-  PLAYER_NUMBER=number;// We remove 1 for the empty team name
+  PLAYER_NUMBER=number;
 }
 /*
 * @desc Function to remove duplicates during copy from a rangename to another using a space of the initial rangename without duplicates.
@@ -193,6 +254,7 @@ function removeDuplicatesCopy(initialSheetName,destinationSheetName,initialRange
   ss.getSheetByName(destinationSheetName).getRange(row, col, newData.length, newData[0].length).setValues(newData);
 }
 
+
 /*
 * @desc Function to randomise during copy from a rangename to another using a space of the initial rangename
 * @param initialSheetName name of original sheet to copy from.
@@ -220,6 +282,22 @@ function randomisedCopy(initialSheetName,destinationSheetName,initialRangeName,d
   var row = ss.getSheetByName(destinationSheetName).getRange(destinationRangeName).getRow();
   var col = ss.getSheetByName(destinationSheetName).getRange(destinationRangeName).getColumn();
   ss.getSheetByName(destinationSheetName).getRange(row, col, newData.length, newData[0].length).setValues(shuffleArray(newData));
+}
+/*
+* @desc Function to copy from a rangename to another using a space of the initial rangename
+* @param initialSheetName name of original sheet to copy from.
+* @param destinationSheetName name of the destionation sheet to copy to.
+* @param initialRangeName name of the initial rangename
+* @param destinationRangeName name of the destination rangename
+*/
+function simpleCopy(initialSheetName,destinationSheetName,initialRangeName,destinationRangeName) {
+  var sheet = ss.getSheetByName(initialSheetName);
+  var data = sheet.getRange(initialRangeName).getValues();
+  var row = ss.getSheetByName(destinationSheetName).getRange(destinationRangeName).getRow();
+  var col = ss.getSheetByName(destinationSheetName).getRange(destinationRangeName).getColumn();
+  //range.copyValuesToRange(destinationSheetName, row, col, 4, 6);
+  sheet.getRange(initialRangeName).copyTo(ss.getSheetByName(destinationSheetName).getRange(destinationRangeName), {contentsOnly:true});
+  //ss.getSheetByName(destinationSheetName).getRange(row, col, data.length, data[0].length).setValues(data);
 }
 
 /**
@@ -256,12 +334,16 @@ function obtainAffiliationDebater(teamName){
   var debaterSheet=ss.getSheetByName(SHEET_DEBATER);
   var rangeName = debaterSheet.getRange(3, 1, PLAYER_NUMBER,2);
   var nameFields = rangeName.getValues();
+  var found=false;
   for(i in nameFields){
-    if(nameFields[i][1]==teamName){
-     return nameFields[i][0];
+    if(String(nameFields[i][1])==String(teamName)){
+      found=true;
+      return nameFields[i][0];
     }
   }
-  throw "Error : Affiliation not found to teamName " + teamName;
+  if(!found){
+     throw "Error : Affiliation not found to teamName " + teamName;
+  }
 }
 
 
@@ -272,19 +354,23 @@ function obtainAffiliationAdjudicator(adjudicatorName){
   var debaterSheet=ss.getSheetByName(SHEET_ADJU);
   var rangeName = debaterSheet.getRange("A3:B");
   var nameFields = rangeName.getValues();
+  var found=false;
   for(i in nameFields){
-    if(nameFields[i][1]==adjudicatorName){
-     return nameFields[i][0];
+    if(String(nameFields[i][1])==String(adjudicatorName)){
+      found=true;
+      return nameFields[i][0];
     }
   }
+  if(!found){
   throw "Error : Affiliation not found to adjudicator";
+  }
 }
 /*
 * Function to return integer between 0 and team number-1
 */
 function randomIndexTeam(maxIndex)
 {
-  return Math.ceil(Math.random() *(Number(maxIndex)));//Reducing 1 to team number because highest array index is TEAM_NUMBER-1
+  return Math.ceil(Math.random() *(Number(maxIndex)))-1;//Reducing 1 to team number because highest array index is TEAM_NUMBER-1
 }
 
 
@@ -298,35 +384,54 @@ function pairingGenerator(round_number,quarter_number,sides_per_round,limit_inte
   }
   obtainNumberTeams();
   obtainNumberPlayers();
-  //obtainAffiliationNumbers();
+  obtainNumberRooms();
+  obtainNumberAdjudicator();
   var scoreBoardSheet = ss.getSheetByName(SHEET_SCOREBOARD);
   var currentRound=scoreBoardSheet.getRange("C2").getValue();
-  
+  var RoundName= "Round " + Number(currentRound+1);
   if (currentRound==0&&SIDES_PER_ROUND==2) {
     if(TEAM_NUMBER%2!=0){
       throw "Team Number not divisible by 2"
   }
-    var RoundName= "Round 1";
     createPairingSheet(RoundName);
-    randomisedCopy(SHEET_ROOM,RoundName,"A3:A","A3:A");
-    SpreadsheetApp.flush();    
+    assignRooms(RoundName);    
     pairingZeroTwoSide(RoundName);
+    assignAdjudicator2sides(RoundName);
+    SpreadsheetApp.flush();
+    /*
+  TO DO : UPDATE ADJUDICATOR SMART FOR 2 
+  */
 } else if (currentRound==0&&SIDES_PER_ROUND==4) {
   if(TEAM_NUMBER%4!=0){
     throw "Team Number not divisible by 4"
   }
-  var RoundName= "Round 1";
     createPairingSheet(RoundName);
-    randomisedCopy(SHEET_ROOM,RoundName,"A3:A","A3:A");
-    SpreadsheetApp.flush();    
-   pairingZeroFourSide(RoundName);
+    assignRooms(RoundName);   
+    pairingZeroFourSide(RoundName);
+    //assignAdjudicator4sides(RoundName);
+  /*
+  TO DO : UPDATE ADJUDICATOR SMART FOR 4
+  */
   
 } else if (currentRound>0&&currentRound<QUARTER_ROUND_NUMBER&&SIDES_PER_ROUND==2) {
-  
+  /*
+  TO DO :
+  FROM SCOREBOARD CREATE BRACKETS OF 2
+  */
+  createPairingSheet(RoundName);
+  assignRooms(RoundName);
+  pairingTwoSideScoreBoard(RoundName);
+  assignAdjudicator2sides(RoundName);
+  SpreadsheetApp.flush();
 } else if (currentRound>0&&currentRound<QUARTER_ROUND_NUMBER&&SIDES_PER_ROUND==4){
-  
+  /*
+  TO DO :
+  FROM SCOREBOARD CREATE BRACKETS OF 4
+  */
 } else {//QUARTER ROUND && both types of side per round to be matched
-
+  /*
+  TO DO : CREATE BRACKET FINALS
+  */
 }
     
   
@@ -344,41 +449,33 @@ function dataIntegration(round_number,quarter_number,sides_per_round,limit_inter
   }
   obtainNumberTeams();
   obtainNumberPlayers();
+  obtainNumberAdjudicator();
   var scoreBoardSheet = ss.getSheetByName(SHEET_SCOREBOARD);
   var currentRound=scoreBoardSheet.getRange("C2").getValue();
-  if (currentRound==0&&SIDES_PER_ROUND==2) {
-    
-   var range = scoreBoardSheet.getRange(4, 1, TEAM_NUMBER);
-   var values = range.getValues();
-   shuffleArray(values);
-   var newGov = [];
-   var newOpp = [];
-   for (var row in values) {
-     var rand = Math.ceil(Math.random() *2 );//(Number(TEAM_NUMBER))
-     if(rand%2==0&&newGov.length<Number(TEAM_NUMBER/2)){
-     newGov.push(values[row]);
-     }
-     else if(newOpp.length<Number(TEAM_NUMBER/2)){
-     newOpp.push(values[row]);
-     }
-     else{
-     newGov.push(values[row]);
-   }
- }
-    var RoundName= "Round 1";
-    createPairingSheet(RoundName);
-    randomisedCopy(SHEET_ROOM,RoundName,"A3:A","A3:A");
-    SpreadsheetApp.flush();
-    //var ControlMessage = "Affiliation "+ obtainAffiliationDebater("Mn") ; 
-    //Browser.msgBox(ControlMessage);
-    ss.getSheetByName(RoundName).getRange(3, 2,newGov.length,1).setValues(newGov);
-    ss.getSheetByName(RoundName).getRange(3, 3,newOpp.length,1).setValues(newOpp);
-} else if (currentRound==0&&SIDES_PER_ROUND==4) {
-  //
-} else if (currentRound>0&&currentRound<QUARTER_ROUND_NUMBER&&SIDES_PER_ROUND==2) {
-  
-} else if (currentRound>0&&currentRound<QUARTER_ROUND_NUMBER&&SIDES_PER_ROUND==4){
-  
+  updateTeamToScoreboard(currentRound);
+  updatePlayerToScoreboard(currentRound);
+  if (currentRound<QUARTER_ROUND_NUMBER&&SIDES_PER_ROUND==2) {
+   /*
+   TO DO : UPDATE SCORE FROM PLAYERS AND TEAMS TO SCOREBOARD.
+   UPDATE NUMBER OPP NUMBER GOV
+   notes : use reusable code for lookup in scoreboard.
+   */ 
+   updateRound2Sides(currentRound);
+   sortScoreBoard();
+   scoreBoardSheet.getRange("C2").setValue(Number(currentRound+1)); 
+   Browser.msgBox("Data Validated add-on switching to Round: "+Number(currentRound+1));
+   SpreadsheetApp.flush();
+} else if (currentRound<QUARTER_ROUND_NUMBER&&SIDES_PER_ROUND==4) {
+   /*
+   TO DO : UPDATE SCORE FROM PLAYERS AND TEAMS TO SCOREBOARD.
+   UPDATE NUMBER OPP NUMBER GOV
+   notes : use reusable code for lookup in scoreboard.
+   */ 
+   updateRound4Sides(currentRound);
+   sortScoreBoard();
+   scoreBoardSheet.getRange("C2").setValue(Number(currentRound+1));
+   Browser.msgBox("Data Validated add-on switching to Round: "+Number(currentRound+1));
+   SpreadsheetApp.flush();
 } else {//QUARTER ROUND && both types of side per round to be matched
 
 }

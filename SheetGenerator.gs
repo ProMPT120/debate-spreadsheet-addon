@@ -1,5 +1,5 @@
-
-n to initialise the spreadsheet debater
+ /*
+ * function to initialise the spreadsheet debater
  */
   function generateSheetDebater (){
     createSheet(SHEET_DEBATER);
@@ -92,9 +92,24 @@ function setConfiguration()
 }
 
 /*
+ * function to reapply alternating coloring
+ * @param {string} sheetName name of the sheet to create and add or clear if existing.l
+ *  @param {number} initRow initial row of the range.
+ *  @param {number} rowNum number of sequential rows to apply formatting.
+ *  @param {number} colNum number of sequential column to apply formatting.
+ */
+function applyAlternatingColoring(sheetName,initRow,rowNum,colNum){
+  var directionsSheet = ss.getSheetByName(sheetName);
+   if (!directionsSheet) {
+    throw "Sheet " + sheetName + " already exists !";
+  }
+    setAlternatingRowBackgroundColors_(directionsSheet.getRange(initRow,1,rowNum,colNum), '#ffffff', '#eeeeee');  
+}
+/*
  * function to create the sheet that
  * @param {string} sheetName name of the sheet to create and add or clear if existing.
  */
+
  function createScoreboardSheet(){
     var directionsSheet = ss.getSheetByName(SHEET_SCOREBOARD);
    if (directionsSheet) {
@@ -111,14 +126,16 @@ function setConfiguration()
     ['Scoreboard', '', '','','','','',''],['Rounds registered', '', '','0','','','',''],
       ['Affiliation','Team Name', 'Aggregate Score','Performance Average','Open Gov number','Open OPP number','Close Gov number','Close Opp number']
   ];
+  var totalRange;
   if( SIDES_PER_ROUND==2)
   {
   // Format the new sheet for 2 side
     directionsSheet.getRange(1, 1, headersScoreboardside2.length, 6).setValues(headersScoreboardside2);
     directionsSheet.setColumnWidth(1, 250);directionsSheet.setColumnWidth(2, 250);directionsSheet.setColumnWidth(3, 200);
     directionsSheet.setColumnWidth(4, 200); directionsSheet.setColumnWidth(5, 150);
-    directionsSheet.setColumnWidth(6, 150);directionsSheet.setColumnWidth(7, 150);
+    directionsSheet.setColumnWidth(6, 150);
     setAlternatingRowBackgroundColors_(directionsSheet.getRange(3,1,TEAM_NUMBER,6), '#ffffff', '#eeeeee');
+    totalRange=directionsSheet.getRange(4,3,TEAM_NUMBER,4);
   }
    else{
     // Format applied for 4 side
@@ -127,27 +144,26 @@ function setConfiguration()
     directionsSheet.setColumnWidth(4, 200); directionsSheet.setColumnWidth(5, 150);
     directionsSheet.setColumnWidth(6, 150);directionsSheet.setColumnWidth(7, 150); directionsSheet.setColumnWidth(8, 150);
     setAlternatingRowBackgroundColors_(directionsSheet.getRange(3,1,TEAM_NUMBER,8), '#ffffff', '#eeeeee');
+    totalRange=directionsSheet.getRange(4,3,TEAM_NUMBER,6);
    }
     directionsSheet.getRange('A1:B1').merge().setBackground('#ddddee');
     directionsSheet.getRange('A2:B2').merge().setBackground('#eeeeee');
     directionsSheet.getRange('C2:D2').merge().setBackground('#ffffff');
     directionsSheet.getRange('A1:D2').setFontSize(20);
-    directionsSheet.getRange('A1:3').setFontWeight('bold'); 
-    directionsSheet.getRange('A2:G').setVerticalAlignment('top');
-    directionsSheet.getRange('A2:G').setHorizontalAlignment('left');
-    directionsSheet.getRange('A2:G').setNumberFormat('0');
+    directionsSheet.getRange('A1:3').setFontWeight('bold');
+    directionsSheet.getRange('A2:H').setVerticalAlignment('top');
+    directionsSheet.getRange('A2:H').setHorizontalAlignment('left');
+    directionsSheet.getRange('A2:H').setNumberFormat('0');
     directionsSheet.setFrozenRows(3);
-    var scoreboard = ss.getSheetByName(SHEET_SCOREBOARD);
-    /*var data = scoreboard.getRange("C4:G");
-   
+    var data = directionsSheet.getRange("E4:H");
     rule = SpreadsheetApp.newDataValidation()
      .requireNumberGreaterThanOrEqualTo(0)
      .setAllowInvalid(false)
      .setHelpText('Number must be superior to 0')
      .build();
-    data.setDataValidation(rule);*/
-   
-    // Validation of scoreboard number data.  
+    data.setDataValidation(rule);
+    var formula="0";
+    totalRange.setFormulaR1C1(formula);
 }
 
 /*
@@ -199,25 +215,25 @@ function validateAdjudicator(){
     directionsSheet.getRange(1, 1, headersTeamStats.length, 1).setValues(headersTeamStats);
     directionsSheet.setColumnWidth(1, 300);
    var roundName;
-   for (var i = 1; i <= ROUND_NUMBER; i++) {
+   for (var i = 1; i <= QUARTER_ROUND_NUMBER; i++) {
      roundName = 'Round ' + i;
      directionsSheet.getRange(2, i+1).setValue(roundName);
      directionsSheet.setColumnWidth(i+1, 100);
     }
-    var controlRound = Number(ROUND_NUMBER)+1;// Adding 1 to rounder number to account for team name column.
+    var controlRound = Number(QUARTER_ROUND_NUMBER)+1;// Adding 1 to rounder number to account for team name column.
     setAlternatingRowBackgroundColors_(directionsSheet.getRange(3,1,TEAM_NUMBER,controlRound), '#ffffff', '#eeeeee');
     directionsSheet.getRange('A1:B1').merge().setBackground('#ddddee');
     directionsSheet.getRange('A1:B1').setFontSize(25); 
     directionsSheet.getRange('A1:2').setFontWeight('bold'); 
-    directionsSheet.getRange(2,1,TEAM_NUMBER,controlRound).setVerticalAlignment('top');
-    directionsSheet.getRange(2,1,TEAM_NUMBER,controlRound).setHorizontalAlignment('left');
-    directionsSheet.getRange(2,1,TEAM_NUMBER,controlRound).setNumberFormat('0');
+    directionsSheet.getRange(3,1,TEAM_NUMBER,controlRound).setVerticalAlignment('top');
+    directionsSheet.getRange(3,1,TEAM_NUMBER,controlRound).setHorizontalAlignment('left');
+    directionsSheet.getRange(3,1,TEAM_NUMBER,controlRound).setNumberFormat('0');
     directionsSheet.setFrozenRows(2);
-    var data = directionsSheet.getRange(3,2,TEAM_NUMBER,ROUND_NUMBER);
+    var data = directionsSheet.getRange(3,2,TEAM_NUMBER,QUARTER_ROUND_NUMBER);
     rule = SpreadsheetApp.newDataValidation()
      .requireNumberGreaterThanOrEqualTo(0)
      .setAllowInvalid(false)
-     .setHelpText('Number must be superior to 0')
+     .setHelpText('Number must be superior or equal to 0')
      .build();
     data.setDataValidation(rule);
     // Validation of scoreboard number data.  
@@ -233,34 +249,43 @@ function createPlayerStatsSheet(){
         ss.insertSheet(SHEET_PLAYERSTATS, ss.getNumSheets());
   }
     var headersPlayerStats = [
-    ['PlayerStats'],
-      ['Debater Name']
+    ['PlayerStats','','',''],
+      ['Team Name','Debater Name','Score','Std dev']
   ];
-    directionsSheet.getRange(1, 1, headersPlayerStats.length, 1).setValues(headersPlayerStats);
-    directionsSheet.setColumnWidth(1, 300);
+    directionsSheet.getRange(1, 1, headersPlayerStats.length, 4).setValues(headersPlayerStats);
+    directionsSheet.setColumnWidth(1, 250);directionsSheet.setColumnWidth(2, 250);directionsSheet.setColumnWidth(3, 150);
+    directionsSheet.setColumnWidth(4, 150);
    var roundName;
-   for (var i = 1; i <= ROUND_NUMBER; i++) {
+   for (var i = 1; i <= QUARTER_ROUND_NUMBER; i++) {
      roundName = 'Round ' + i;
-     directionsSheet.getRange(2, i+1).setValue(roundName);
-     directionsSheet.setColumnWidth(i+1, 100);
+     directionsSheet.getRange(2, i+4).setValue(roundName);
+     directionsSheet.setColumnWidth(i+4, 100);
     }
-    var controlRound = Number(ROUND_NUMBER)+1;// Adding 1 to rounder number to account for team name column.
+    var controlRound = Number(QUARTER_ROUND_NUMBER)+4;// Adding 2 to rounder number to account for team name and player columns and Total Score and Standard Deviation.
     setAlternatingRowBackgroundColors_(directionsSheet.getRange(3,1,PLAYER_NUMBER,controlRound), '#ffffff', '#eeeeee');
     directionsSheet.getRange('A1:B1').merge().setBackground('#ddddee');
     directionsSheet.getRange('A1:B1').setFontSize(25); 
     directionsSheet.getRange('A1:2').setFontWeight('bold'); 
-    directionsSheet.getRange(2,1,PLAYER_NUMBER,controlRound).setVerticalAlignment('top');
-    directionsSheet.getRange(2,1,PLAYER_NUMBER,controlRound).setHorizontalAlignment('left');
-    directionsSheet.getRange(2,1,PLAYER_NUMBER,controlRound).setNumberFormat('0');
+    directionsSheet.getRange(3,1,PLAYER_NUMBER,controlRound).setVerticalAlignment('top');
+    directionsSheet.getRange(3,1,PLAYER_NUMBER,controlRound).setHorizontalAlignment('left');
+    directionsSheet.getRange(3,1,PLAYER_NUMBER,controlRound).setNumberFormat('0');
     directionsSheet.setFrozenRows(2);
-    var data = directionsSheet.getRange(3,2,PLAYER_NUMBER,ROUND_NUMBER);
+    var data = directionsSheet.getRange(3,3,PLAYER_NUMBER,QUARTER_ROUND_NUMBER);
     rule = SpreadsheetApp.newDataValidation()
      .requireNumberGreaterThanOrEqualTo(0)
      .setAllowInvalid(false)
      .setHelpText('Number must be superior to 0')
      .build();
     data.setDataValidation(rule);
-    // Validation of scoreboard number data.  
+    var totalRange=directionsSheet.getRange(3,3,PLAYER_NUMBER);
+    var formula="=SUM(R[0]C[2]:R[0]C["+Number(QUARTER_ROUND_NUMBER+1)+"])";
+    totalRange.setFormulaR1C1(formula);
+    var stdDevRange=directionsSheet.getRange(3,4,PLAYER_NUMBER);
+    var stdformula="=STDEV(R[0]C[1]:R[0]C["+Number(QUARTER_ROUND_NUMBER)+"])";
+    stdDevRange.setFormulaR1C1(stdformula);
+   // var cell = sheet.getRange("B5");
+ // This sets the formula to be the sum of the 3 rows above B5
+ //cell.setFormulaR1C1("=SUM(R[-3]C[0]:R[-1]C[0])");
 }
 function createPairingSheet(pairingName){
     var directionsSheet = ss.getSheetByName(pairingName);
