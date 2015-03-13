@@ -1,6 +1,6 @@
 # Debate-spreadsheet-addon
 
-![PolyDebat Logo](docs/images/thumbnails.jpg?raw=true)
+![PolyDebat Logo](docs/images/thumbnail.jpg?raw=true)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://choosealicense.com/licenses/mit/)
 
 This project developed and maitained by Ashley Manraj contains the add-on to Google spreadsheet to manage debate tournaments of the format British Parliamentary and Canadian Parliamentary. The main objective is providing a reliable, robust and fast implementation to allow automatic management of a large scale debate tournament through the use of [Google Spreadsheet](https://docs.google.com/spreadsheets).
