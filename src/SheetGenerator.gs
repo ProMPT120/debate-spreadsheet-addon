@@ -187,9 +187,9 @@ function validateAdjudicator(){
  var adju = ss.getSheetByName(SHEET_ADJU);
   var cell = adju.getRange('C3:C');
   var rule = SpreadsheetApp.newDataValidation()
-     .requireNumberBetween(1, 3)
+     .requireNumberBetween(1, 5)
      .setAllowInvalid(false)
-     .setHelpText('Number must be between 1 and 3. 1 New - 3 Experienced')
+     .setHelpText('Number must be between 1 and 5. 1 New - 5 Top teams adjudicator')
      .build();
   cell.setDataValidation(rule);
 }
@@ -308,14 +308,14 @@ function createPairingSheet(pairingName){
     setAlternatingRowBackgroundColors_(directionsSheet.getRange(3,1,Number(TEAM_NUMBER/2),4), '#ffffff', '#eeeeee');  
     directionsSheet.getRange(2,1,Number(TEAM_NUMBER/2),4).setVerticalAlignment('top');
     directionsSheet.getRange(2,1,Number(TEAM_NUMBER/2),4).setHorizontalAlignment('left');
-    directionsSheet.setColumnWidth(2, 250);directionsSheet.setColumnWidth(3, 250);directionsSheet.setColumnWidth(4, 350);
+    directionsSheet.setColumnWidth(2, 250);directionsSheet.setColumnWidth(3, 250);directionsSheet.setColumnWidth(4, 250);
     }else {
     directionsSheet.getRange(2, 1, headersPairingside4.length, 6).setValues(headersPairingside4);
     setAlternatingRowBackgroundColors_(directionsSheet.getRange(3,1,Number(TEAM_NUMBER/4),6), '#ffffff', '#eeeeee');  
     directionsSheet.getRange(2,1,Number(TEAM_NUMBER/4),6).setVerticalAlignment('top');
     directionsSheet.getRange(2,1,Number(TEAM_NUMBER/4),6).setHorizontalAlignment('left');
     directionsSheet.setColumnWidth(2, 250);directionsSheet.setColumnWidth(3, 250);directionsSheet.setColumnWidth(4, 250);
-    directionsSheet.setColumnWidth(5, 250);directionsSheet.setColumnWidth(6, 350);
+    directionsSheet.setColumnWidth(5, 250);directionsSheet.setColumnWidth(6, 250);
     }
     directionsSheet.setFrozenRows(2);  
 }

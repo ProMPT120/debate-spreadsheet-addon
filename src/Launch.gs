@@ -20,10 +20,14 @@ var ROUND_NUMBER = 7;
 var QUARTER_ROUND_NUMBER = 5;
 var SIDES_PER_ROUND = 2;
 var LIMIT_INTER_AFF_ROUNDS = true;
-var TEAM_NUMBER = 16;
-var PLAYER_NUMBER = 32;
-var ROOM_NUMBER=32;
-var ADJUDICATOR_NUMBER=14;
+var TEAM_NUMBER = 12;
+var PLAYER_NUMBER = 24;
+var ROOM_NUMBER=6;
+var ADJUDICATOR_NUMBER=17;
+var AFFIL_TEAM=[];
+var TEAM_LIST=[];
+var AFFIL_ADJUDICATOR=[];
+var ADJUDICATOR_LIST=[];
 
 // This method adds a custom menu item to run the script
 function onOpen() {
@@ -63,6 +67,8 @@ function acquireData(round_number,quarter_number,sides_per_round,limit_inter) {
   obtainNumberTeams();
   obtainNumberPlayers();
   obtainNumberAdjudicator();
+  populateDebaterList();
+  populateAdjudicatorList();
   createScoreboardSheet();
   SpreadsheetApp.flush();
   removeDuplicatesCopy(SHEET_DEBATER,SHEET_SCOREBOARD,'B3:B','B4:B');
@@ -331,6 +337,7 @@ function createArray(length) {
 *  Function to obtain affiliation of a team from Debater list
 */
 function obtainAffiliationDebater(teamName){
+  /*
   var debaterSheet=ss.getSheetByName(SHEET_DEBATER);
   var rangeName = debaterSheet.getRange(3, 1, PLAYER_NUMBER,2);
   var nameFields = rangeName.getValues();
@@ -341,16 +348,76 @@ function obtainAffiliationDebater(teamName){
       return nameFields[i][0];
     }
   }
-  if(!found){
+  */
+  
+  var index=TEAM_LIST.indexOf(String(teamName));
+  if(index==-1){
      throw "Error : Affiliation not found to teamName " + teamName;
+  }else{
+    return AFFIL_TEAM[index];
   }
+  
+}
+/*
+*  Function to populate the arrays of AFFIL_TEAM and TEAM_LIST to act as a direct cache for the browser without having to parse the spreadsheet data over and over.
+   This would speed up the pairingGenerator multiple calls to obtainDebater.
+*/
+function populateDebaterList(){
+  var debaterSheet=ss.getSheetByName(SHEET_DEBATER);
+  var rangeName = debaterSheet.getRange(3, 1, PLAYER_NUMBER,2);
+  var nameFields = rangeName.getValues();
+  for(i in nameFields){
+    var row = String(nameFields[i][1]);
+    var duplicate = false;
+    for(j in TEAM_LIST){
+      if(row == String(TEAM_LIST[j])){
+        duplicate = true;
+      }
+      if(row==""){
+        duplicate=true;
+      }
+    }
+    if(!duplicate){
+      TEAM_LIST.push(row);
+      AFFIL_TEAM.push(String(nameFields[i][0]));
+    }
+  }
+  
+  
 }
 
 
+/*
+*  Function to populate the arrays of AFFIL_ADJUDICATOR and ADJUDICATOR_LIST
+*/
+function populateAdjudicatorList(){
+  var debaterSheet=ss.getSheetByName(SHEET_ADJU);
+  var rangeName = debaterSheet.getRange(3,1,ADJUDICATOR_NUMBER,2);
+  var nameFields = rangeName.getValues();
+    for(i in nameFields){
+    var row = String(nameFields[i][1]);
+    var duplicate = false;
+    for(j in ADJUDICATOR_LIST){
+      if(row == String(ADJUDICATOR_LIST[j])){
+        duplicate = true;
+        throw "Adjudicator name: "+row +" isn't allowed to be registered multiple times";
+      }
+      if(row==""){
+        duplicate=true;
+      }
+    }
+    if(!duplicate){
+      ADJUDICATOR_LIST.push(row);
+      AFFIL_ADJUDICATOR.push(String(nameFields[i][0]));
+    }
+  }
+  
+}
 /* 
 *  Function to obtain affiliation of an adjudicator from Adjudicator list
 */
 function obtainAffiliationAdjudicator(adjudicatorName){
+  /*
   var debaterSheet=ss.getSheetByName(SHEET_ADJU);
   var rangeName = debaterSheet.getRange("A3:B");
   var nameFields = rangeName.getValues();
@@ -363,6 +430,13 @@ function obtainAffiliationAdjudicator(adjudicatorName){
   }
   if(!found){
   throw "Error : Affiliation not found to adjudicator";
+  }
+  */
+  var index=ADJUDICATOR_LIST.indexOf(String(adjudicatorName));
+  if(index==-1){
+     throw "Error : Affiliation not found to Adjudicator name " + adjudicatorName;
+  }else{
+    return AFFIL_ADJUDICATOR[index];
   }
 }
 /*
@@ -386,6 +460,8 @@ function pairingGenerator(round_number,quarter_number,sides_per_round,limit_inte
   obtainNumberPlayers();
   obtainNumberRooms();
   obtainNumberAdjudicator();
+  populateDebaterList();
+  populateAdjudicatorList();
   var scoreBoardSheet = ss.getSheetByName(SHEET_SCOREBOARD);
   var currentRound=scoreBoardSheet.getRange("C2").getValue();
   var RoundName= "Round " + Number(currentRound+1);
@@ -450,6 +526,8 @@ function dataIntegration(round_number,quarter_number,sides_per_round,limit_inter
   obtainNumberTeams();
   obtainNumberPlayers();
   obtainNumberAdjudicator();
+  populateDebaterList();
+  populateAdjudicatorList();
   var scoreBoardSheet = ss.getSheetByName(SHEET_SCOREBOARD);
   var currentRound=scoreBoardSheet.getRange("C2").getValue();
   updateTeamToScoreboard(currentRound);

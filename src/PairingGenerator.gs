@@ -268,10 +268,45 @@ function pairingTwoSideScoreBoard(RoundName){
    currentRow=currentRow+bracketSize;
    remainingPairings=remainingPairings-bracketSize;   
   }
+  control2Sides(dataGrid,newGov,newOpp);
   ss.getSheetByName(RoundName).getRange(3, 2,newGov.length,1).setValues(newGov);
-    ss.getSheetByName(RoundName).getRange(3, 3,newOpp.length,1).setValues(newOpp);
+  ss.getSheetByName(RoundName).getRange(3, 3,newOpp.length,1).setValues(newOpp);
   
 }
+/* function to inverse gov and opp selected depending on number of times they have been opposition/gov.
+*
+*
+*/
+function control2Sides(dataGrid,newGov,newOpp){
+  var indexGov;
+  var indexOpp;
+  var deficiencyGov;
+  var deficiencyOpp;
+  var temp;
+  var deficiencyTeams=createArray(2,TEAM_NUMBER);
+  for(var i=0;i<TEAM_NUMBER;i++){
+    deficiencyTeams[0][i]=String(dataGrid[i][1]);
+    deficiencyTeams[1][i]=Number(dataGrid[i][4]-dataGrid[i][5]);
+  }
+  for(var i=0;i<newGov.length;i++){
+  indexGov=deficiencyTeams[0].indexOf(String(newGov[i]));
+  indexOpp=deficiencyTeams[0].indexOf(String(newOpp[i]));  
+    if(indexGov==-1||indexOpp==-1){
+      throw "Error : Invalid state function control2sides";
+    }else{
+      if(Number(deficiencyTeams[1][indexGov])>Number(deficiencyTeams[1][indexOpp])){
+      temp=newGov[i];
+      newGov[i]=newOpp[i];
+      newOpp[i]=temp;
+      }
+    }
+  }
+  
+  
+  
+}
+
+
 /*
 * Function to handle pairing 0 for four sides
 */
@@ -417,6 +452,7 @@ function assignAdjudicator2sides(RoundName){
    for (var i = 1; i <= colNumAdju; i++) {
      adjuName = 'Adjudicator ' + i;
      scorePlayerRounds.getRange(2, i+3).setValue(adjuName);
+     scorePlayerRounds.setColumnWidth(i+3, 250);
     }
    setAlternatingRowBackgroundColors_(scorePlayerRounds.getRange(3,4,pairingNumber,colNumAdju), '#ffffff', '#eeeeee');
    
