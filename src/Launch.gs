@@ -29,7 +29,7 @@ var TEAM_LIST=[];
 var AFFIL_ADJUDICATOR=[];
 var ADJUDICATOR_LIST=[];
 
-// This method adds a custom menu item to run the script
+// This function adds a custom menu item to run the script
 function onOpen() {
   SpreadsheetApp.getUi().createAddonMenu()
       .addItem('Start', 'showSidebar')
@@ -54,7 +54,7 @@ function onInstall(e) {
   onOpen(e);
 }
 
-// This method creates the brackets based on the data provided on the players
+// This function creates the brackets based on the data provided on the players
 function acquireData(round_number,quarter_number,sides_per_round,limit_inter) {
   // Data integrity is done by the javascript and html
   ROUND_NUMBER=Number(round_number);

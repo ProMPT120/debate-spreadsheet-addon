@@ -269,8 +269,14 @@ function pairingTwoSideScoreBoard(RoundName){
    remainingPairings=remainingPairings-bracketSize;   
   }
   control2Sides(dataGrid,newGov,newOpp);
-  ss.getSheetByName(RoundName).getRange(3, 2,newGov.length,1).setValues(newGov);
-  ss.getSheetByName(RoundName).getRange(3, 3,newOpp.length,1).setValues(newOpp);
+  var pairingNumber=TEAM_NUMBER/SIDES_PER_ROUND; 
+  var randomised_order=createArray(pairingNumber,2);
+  for(var i = 0;i<pairingNumber;i++){
+    randomised_order[i][0]=String(newGov[i]);
+    randomised_order[i][1]=String(newOpp[i]);
+   }
+  shuffleArray(randomised_order);
+  ss.getSheetByName(RoundName).getRange(3, 2,randomised_order.length,2).setValues(randomised_order);
   
 }
 /* function to inverse gov and opp selected depending on number of times they have been opposition/gov.
