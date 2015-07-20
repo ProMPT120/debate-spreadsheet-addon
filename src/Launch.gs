@@ -18,12 +18,12 @@ var SHEET_TEAMSTATS = 'TeamStats';
 var ss = SpreadsheetApp.getActiveSpreadsheet();
 var ROUND_NUMBER = 7;
 var QUARTER_ROUND_NUMBER = 5;
-var SIDES_PER_ROUND = 2;
+var SIDES_PER_ROUND = 4;
 var LIMIT_INTER_AFF_ROUNDS = true;
-var TEAM_NUMBER = 12;
-var PLAYER_NUMBER = 24;
+var TEAM_NUMBER = 20;
+var PLAYER_NUMBER = 40;
 var ROOM_NUMBER=6;
-var ADJUDICATOR_NUMBER=17;
+var ADJUDICATOR_NUMBER=22;
 var AFFIL_TEAM=[];
 var TEAM_LIST=[];
 var AFFIL_ADJUDICATOR=[];
@@ -349,14 +349,12 @@ function obtainAffiliationDebater(teamName){
     }
   }
   */
-  
   var index=TEAM_LIST.indexOf(String(teamName));
   if(index==-1){
      throw "Error : Affiliation not found to teamName " + teamName;
   }else{
     return AFFIL_TEAM[index];
   }
-  
 }
 /*
 *  Function to populate the arrays of AFFIL_TEAM and TEAM_LIST to act as a direct cache for the browser without having to parse the spreadsheet data over and over.
@@ -484,7 +482,7 @@ function pairingGenerator(round_number,quarter_number,sides_per_round,limit_inte
     createPairingSheet(RoundName);
     assignRooms(RoundName);   
     pairingZeroFourSide(RoundName);
-    //assignAdjudicator4sides(RoundName);
+    assignAdjudicator4sides(RoundName);
   /*
   TO DO : UPDATE ADJUDICATOR SMART FOR 4
   */
@@ -500,6 +498,11 @@ function pairingGenerator(round_number,quarter_number,sides_per_round,limit_inte
   assignAdjudicator2sides(RoundName);
   SpreadsheetApp.flush();
 } else if (currentRound>0&&currentRound<QUARTER_ROUND_NUMBER&&SIDES_PER_ROUND==4){
+  createPairingSheet(RoundName);
+  assignRooms(RoundName);
+  pairingFourSideScoreBoard(RoundName);
+  assignAdjudicator4sides(RoundName);
+  SpreadsheetApp.flush();
   /*
   TO DO :
   FROM SCOREBOARD CREATE BRACKETS OF 4

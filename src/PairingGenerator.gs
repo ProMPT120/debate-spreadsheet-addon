@@ -275,8 +275,240 @@ function pairingTwoSideScoreBoard(RoundName){
     randomised_order[i][0]=String(newGov[i]);
     randomised_order[i][1]=String(newOpp[i]);
    }
-  shuffleArray(randomised_order);
+  shuffleArray(randomised_order);//Randomise for display in random order for pairings to prevent rankings positions
   ss.getSheetByName(RoundName).getRange(3, 2,randomised_order.length,2).setValues(randomised_order);
+  
+}
+/*
+* Function to check if we exceeded maximum iterations.
+*/
+function CheckIterationMax(itr){
+     itr-=1;
+     if(itr<0)
+       throw "Computation limit exceeded. Regenerate round";// Prevents infinite looping when randomness doesnt prioritize spreading big teams.
+}
+/*
+* Function to handle pairing of round 1 to quarterRound-1 with two sides.
+*/
+function pairingFourSideScoreBoard(RoundName){
+  var remainingPairings=TEAM_NUMBER;
+  var currentRow=0;
+  var scoreBoardSheet = ss.getSheetByName(SHEET_SCOREBOARD);
+  var range = scoreBoardSheet.getRange(4, 1, TEAM_NUMBER,4+SIDES_PER_ROUND);
+  var dataGrid = range.getValues();//Data sorted
+  var bracketSize;
+  var rand;
+  var properOpponent;
+  var govIndex=0;
+  var rand2;
+  var rand3;
+  var rand4;
+   var teamname_rand2;
+   var teamname_rand3;
+   var teamname_rand4;
+  var OpeGov = [];
+  var CloGov = [];
+  var OpeOpp = [];
+  var CloOpp = [];
+  var itr=TEAM_NUMBER*80;
+  var values;
+  while(remainingPairings>0){
+  bracketSize=obtainBracketSize(dataGrid,currentRow);
+  values=scoreBoardSheet.getRange(currentRow+4, 2, bracketSize).getValues();
+  var RepresentativeArray=obtainPartialAffiliationNumbers(currentRow,bracketSize);
+  var non_affiliated_rounds=nonAffiliatedMatches(RepresentativeArray,bracketSize);
+   while(values.length>Number(non_affiliated_rounds*SIDES_PER_ROUND)&&LIMIT_INTER_AFF_ROUNDS){
+     rand= values.indexOf(findTeamRepresented(RepresentativeArray,values));// assignation before looping on random values
+     properOpponent=false;
+     var random = Math.ceil(Math.random()*4 );//To allow most represented to be 1 of 4 positions
+     switch(random) {
+          case 1 :
+     OpeGov.push(values[rand]);
+     values.splice(rand,1);
+     while(!properOpponent){
+     rand2= randomIndexTeam(values.length);
+     rand3= randomIndexTeam(values.length);
+     rand4= randomIndexTeam(values.length);
+       if(obtainAffiliationDebater(OpeGov[govIndex])!=obtainAffiliationDebater(values[rand2])&&
+         obtainAffiliationDebater(OpeGov[govIndex])!=obtainAffiliationDebater(values[rand3])&&
+         obtainAffiliationDebater(OpeGov[govIndex])!=obtainAffiliationDebater(values[rand4])&&
+         obtainAffiliationDebater(values[rand2])!=obtainAffiliationDebater(values[rand3])&&
+         obtainAffiliationDebater(values[rand3])!=obtainAffiliationDebater(values[rand4])&&
+         obtainAffiliationDebater(values[rand2])!=obtainAffiliationDebater(values[rand4])){
+         updateRepresented(RepresentativeArray,values[rand2]);
+         updateRepresented(RepresentativeArray,values[rand3]);
+         updateRepresented(RepresentativeArray,values[rand4]);
+         OpeOpp.push(values[rand2]);
+         CloGov.push(values[rand3]);
+         CloOpp.push(values[rand4]);
+         teamname_rand2=values[rand2];
+         teamname_rand3=values[rand3];
+         teamname_rand4=values[rand4];
+         values.splice(values.indexOf(teamname_rand2),1);
+         values.splice(values.indexOf(teamname_rand3),1);
+         values.splice(values.indexOf(teamname_rand4),1);
+         govIndex+=1;
+         properOpponent=true;
+     }
+       CheckIterationMax(itr);
+     }
+     break;
+       case 2:
+       OpeOpp.push(values[rand]);
+       values.splice(rand,1);
+          while(!properOpponent){
+     rand2= randomIndexTeam(values.length);
+     rand3= randomIndexTeam(values.length);
+     rand4= randomIndexTeam(values.length);
+       if(obtainAffiliationDebater(OpeOpp[govIndex])!=obtainAffiliationDebater(values[rand2])&&
+         obtainAffiliationDebater(OpeOpp[govIndex])!=obtainAffiliationDebater(values[rand3])&&
+         obtainAffiliationDebater(OpeOpp[govIndex])!=obtainAffiliationDebater(values[rand4])&&
+         obtainAffiliationDebater(values[rand2])!=obtainAffiliationDebater(values[rand3])&&
+         obtainAffiliationDebater(values[rand3])!=obtainAffiliationDebater(values[rand4])&&
+         obtainAffiliationDebater(values[rand2])!=obtainAffiliationDebater(values[rand4])){
+         updateRepresented(RepresentativeArray,values[rand2]);
+         updateRepresented(RepresentativeArray,values[rand3]);
+         updateRepresented(RepresentativeArray,values[rand4]);
+         OpeGov.push(values[rand2]);
+         CloGov.push(values[rand3]);
+         CloOpp.push(values[rand4]);
+         teamname_rand2=values[rand2];
+         teamname_rand3=values[rand3];
+         teamname_rand4=values[rand4];
+         values.splice(values.indexOf(teamname_rand2),1);
+         values.splice(values.indexOf(teamname_rand3),1);
+         values.splice(values.indexOf(teamname_rand4),1);
+         govIndex+=1;
+         properOpponent=true;
+     }
+       CheckIterationMax(itr);
+     }
+         break;
+       case 3:
+       CloGov.push(values[rand]);
+       values.splice(rand,1);
+       while(!properOpponent){
+     rand2= randomIndexTeam(values.length);
+     rand3= randomIndexTeam(values.length);
+     rand4= randomIndexTeam(values.length);
+       if(obtainAffiliationDebater(CloGov[govIndex])!=obtainAffiliationDebater(values[rand2])&&
+         obtainAffiliationDebater(CloGov[govIndex])!=obtainAffiliationDebater(values[rand3])&&
+         obtainAffiliationDebater(CloGov[govIndex])!=obtainAffiliationDebater(values[rand4])&&
+         obtainAffiliationDebater(values[rand2])!=obtainAffiliationDebater(values[rand3])&&
+         obtainAffiliationDebater(values[rand3])!=obtainAffiliationDebater(values[rand4])&&
+         obtainAffiliationDebater(values[rand2])!=obtainAffiliationDebater(values[rand4])){
+         updateRepresented(RepresentativeArray,values[rand2]);
+         updateRepresented(RepresentativeArray,values[rand3]);
+         updateRepresented(RepresentativeArray,values[rand4]);
+         OpeGov.push(values[rand2]);
+         OpeOpp.push(values[rand3]);
+         CloOpp.push(values[rand4]);
+         teamname_rand2=values[rand2];
+         teamname_rand3=values[rand3];
+         teamname_rand4=values[rand4];
+         values.splice(values.indexOf(teamname_rand2),1);
+         values.splice(values.indexOf(teamname_rand3),1);
+         values.splice(values.indexOf(teamname_rand4),1);
+         govIndex+=1;
+         properOpponent=true;
+     }
+       CheckIterationMax(itr);
+     }
+         break;
+       case 4:
+         CloOpp.push(values[rand]);
+         values.splice(rand,1);
+         while(!properOpponent){
+     rand2= randomIndexTeam(values.length);
+     rand3= randomIndexTeam(values.length);
+     rand4= randomIndexTeam(values.length);
+       if(obtainAffiliationDebater(CloOpp[govIndex])!=obtainAffiliationDebater(values[rand2])&&
+         obtainAffiliationDebater(CloOpp[govIndex])!=obtainAffiliationDebater(values[rand3])&&
+         obtainAffiliationDebater(CloOpp[govIndex])!=obtainAffiliationDebater(values[rand4])&&
+         obtainAffiliationDebater(values[rand2])!=obtainAffiliationDebater(values[rand3])&&
+         obtainAffiliationDebater(values[rand3])!=obtainAffiliationDebater(values[rand4])&&
+         obtainAffiliationDebater(values[rand2])!=obtainAffiliationDebater(values[rand4])){
+         updateRepresented(RepresentativeArray,values[rand2]);
+         updateRepresented(RepresentativeArray,values[rand3]);
+         updateRepresented(RepresentativeArray,values[rand4]);
+         OpeGov.push(values[rand2]);
+         OpeOpp.push(values[rand3]);
+         CloGov.push(values[rand4]);
+         teamname_rand2=values[rand2];
+         teamname_rand3=values[rand3];
+         teamname_rand4=values[rand4];
+         values.splice(values.indexOf(teamname_rand2),1);
+         values.splice(values.indexOf(teamname_rand3),1);
+         values.splice(values.indexOf(teamname_rand4),1);
+         govIndex+=1;
+         properOpponent=true;
+     }
+       CheckIterationMax(itr);
+     }
+         break;
+         
+       default:
+         throw "Invalid state switch random pairingScoreboard4side";        
+        break;   
+     }
+   }
+    // Designed to randomise the initially selected
+   for (var row=0;row<values.length;row+=4) {
+     var rand = Math.ceil(Math.random() *4 );
+     switch(rand){
+       case 1:
+        OpeGov.push(values[row]);
+        OpeOpp.push(values[row+1]);
+        CloGov.push(values[row+2]);
+        CloOpp.push(values[row+3]);
+       break;
+       case 2:
+        OpeOpp.push(values[row]);
+        OpeGov.push(values[row+3]);
+        CloGov.push(values[row+2]);
+        CloOpp.push(values[row+1]);
+       case 3:
+        CloGov.push(values[row]);
+        OpeGov.push(values[row+2]);
+        OpeOpp.push(values[row+1]);
+        CloOpp.push(values[row+3]);
+       break;
+       case 4:
+        CloOpp.push(values[row]);
+        OpeOpp.push(values[row+1]);
+        CloGov.push(values[row+3]);
+        OpeGov.push(values[row+2]);
+       break;
+       default:
+        throw "Invalid random";
+     }
+         updateRepresented(RepresentativeArray,values[row]);
+         updateRepresented(RepresentativeArray,values[row+1]);
+         updateRepresented(RepresentativeArray,values[row+2]);
+         updateRepresented(RepresentativeArray,values[row+3]);
+         rand=values[row];
+         teamname_rand2=values[row+1];
+         teamname_rand3=values[row+2];
+         teamname_rand4=values[row+3];
+         values.splice(values.indexOf(rand),1);
+         values.splice(values.indexOf(teamname_rand2),1);
+         values.splice(values.indexOf(teamname_rand3),1);
+         values.splice(values.indexOf(teamname_rand4),1);
+   }
+   currentRow=currentRow+bracketSize;
+   remainingPairings=remainingPairings-bracketSize;   
+  }
+  control4Sides(dataGrid,OpeGov,OpeOpp,CloGov,CloOpp);
+  var pairingNumber=TEAM_NUMBER/SIDES_PER_ROUND; 
+  var randomised_order=createArray(pairingNumber,4);
+  for(var i = 0;i<pairingNumber;i++){
+    randomised_order[i][0]=String(OpeGov[i]);
+    randomised_order[i][1]=String(OpeOpp[i]);
+    randomised_order[i][2]=String(CloGov[i]);
+    randomised_order[i][3]=String(CloOpp[i]);
+   }
+  shuffleArray(randomised_order);//Randomise for display in random order for pairings to prevent rankings positions
+  ss.getSheetByName(RoundName).getRange(3, 2,randomised_order.length,4).setValues(randomised_order);
   
 }
 /* function to inverse gov and opp selected depending on number of times they have been opposition/gov.
@@ -286,8 +518,6 @@ function pairingTwoSideScoreBoard(RoundName){
 function control2Sides(dataGrid,newGov,newOpp){
   var indexGov;
   var indexOpp;
-  var deficiencyGov;
-  var deficiencyOpp;
   var temp;
   var deficiencyTeams=createArray(2,TEAM_NUMBER);
   for(var i=0;i<TEAM_NUMBER;i++){
@@ -307,9 +537,46 @@ function control2Sides(dataGrid,newGov,newOpp){
       }
     }
   }
-  
-  
-  
+}
+
+function control4Sides(dataGrid,OpeGov,OpeOpp,CloGov,CloOpp){
+  var indexOpeGov;
+  var indexOpeOpp;
+  var indexCloGov;
+  var indexCloOpp;
+  var temp;
+  var deficiencyTeams=createArray(4,TEAM_NUMBER);
+  for(var i=0;i<TEAM_NUMBER;i++){
+    deficiencyTeams[0][i]=String(dataGrid[i][1]);
+    deficiencyTeams[1][i]=Number(dataGrid[i][4]-dataGrid[i][5]);
+    deficiencyTeams[2][i]=Number(dataGrid[i][5]-dataGrid[i][6]);
+    deficiencyTeams[3][i]=Number(dataGrid[i][6]-dataGrid[i][7]);
+  }
+  for(var i=0;i<OpeGov.length;i++){
+  indexOpeGov=deficiencyTeams[0].indexOf(String(OpeGov[i]));
+  indexOpeOpp=deficiencyTeams[0].indexOf(String(OpeOpp[i]));
+  indexCloGov=deficiencyTeams[0].indexOf(String(CloGov[i]));
+  indexCloOpp=deficiencyTeams[0].indexOf(String(CloOpp[i]));
+    if(indexOpeGov==-1||indexOpeOpp==-1||indexCloGov==-1||indexCloOpp==-1){
+      throw "Error : Invalid name function control4sides";
+    }else{
+      if(Number(deficiencyTeams[1][indexOpeGov])>Number(deficiencyTeams[1][indexOpeOpp])){
+      temp=OpeGov[i];
+      OpeGov[i]=OpeOpp[i];
+      OpeOpp[i]=temp;
+      }
+      if(Number(deficiencyTeams[2][indexOpeOpp])>Number(deficiencyTeams[2][indexCloGov])){
+      temp=OpeOpp[i];
+      OpeOpp[i]=CloGov[i];
+      CloGov[i]=temp;
+      }
+      if(Number(deficiencyTeams[3][indexCloGov])>Number(deficiencyTeams[3][indexCloOpp])){
+      temp=CloGov[i];
+      CloGov[i]=CloOpp[i];
+      CloOpp[i]=temp;
+      }
+    }
+  }
 }
 
 
@@ -384,7 +651,7 @@ function pairingZeroFourSide(RoundName){
         break;
     default:
         throw "Invalid state switch random pairingZero4side";        
-        return;
+        break;
          }
          teamname_rand=values[rand];
          teamname_rand2=values[rand2];
@@ -466,6 +733,7 @@ function assignAdjudicator2sides(RoundName){
    var data = range.getValues();
    var govList=[];
    var oppList=[];
+   var iter_Max=TEAM_NUMBER*2;
   for(var i = 0;i<pairingNumber;i++){
     govList.push(data[i][0]);
     oppList.push(data[i][1]);
@@ -497,12 +765,78 @@ function assignAdjudicator2sides(RoundName){
           break;
         }
      }
+      iter_Max--;
+        if(iter_Max<0){
+        throw "Couldn't assign adjudicators";
+        }
    }
   }
   ss.getSheetByName(RoundName).getRange(3,4,assigned_adju_data.length,colNumAdju).setValues(assigned_adju_data);
-
-
-
+}
+function assignAdjudicator4sides(RoundName){
+   var scorePlayerRounds = ss.getSheetByName(RoundName);
+  if(!scorePlayerRounds){
+    throw "Please generate round : "+RoundName +" before integration";
+  }
+   var pairingNumber=TEAM_NUMBER/4;
+   var colNumAdju=Math.ceil(ADJUDICATOR_NUMBER/pairingNumber);
+   var adjuName;
+   for (var i = 1; i <= colNumAdju; i++) {
+     adjuName = 'Adjudicator ' + i;
+     scorePlayerRounds.getRange(2, i+5).setValue(adjuName);
+     scorePlayerRounds.setColumnWidth(i+5, 250);
+    }
+   setAlternatingRowBackgroundColors_(scorePlayerRounds.getRange(3,6,pairingNumber,colNumAdju), '#ffffff', '#eeeeee');
+   
+   var range = scorePlayerRounds.getRange(3, 2,pairingNumber,4);
+   var data = range.getValues();
+   var OpeGovList=[];
+   var OpeOppList=[];
+   var CloGovList=[];
+   var CloOppList=[];
+  for(var i = 0;i<pairingNumber;i++){
+    OpeGovList.push(data[i][0]);
+    OpeOppList.push(data[i][1]);
+    CloGovList.push(data[i][2]);
+    CloOppList.push(data[i][3]);
+  }
+   var adjuSheet = ss.getSheetByName(SHEET_ADJU);
+   var rangeAdju = adjuSheet.getRange(3, 1, ADJUDICATOR_NUMBER,3);
+   rangeAdju.sort([{column: 3, ascending: false}, {column: 1, ascending: false}]);
+   var dataAdju = rangeAdju.getValues();//Sorted data of adjudicators to experience then team.
+   var adjudicator_Names=[];
+   for(var i=0;i<ADJUDICATOR_NUMBER;i++)
+   {
+     adjudicator_Names.push(dataAdju[i][1]); 
+   }
+  var k=0;
+  var iter_Max=TEAM_NUMBER*10;
+  var coladd=0;
+   var assigned_adju_data=createArray(pairingNumber,colNumAdju);
+  while(adjudicator_Names.length>0){
+  for(var i=0;i<pairingNumber;i++){
+    for(var j in adjudicator_Names){
+      if(k==pairingNumber){
+      coladd++;//Progressing to next adjudicator column
+      k=0;
+      }
+     if(obtainAffiliationDebater(OpeGovList[i])!=obtainAffiliationAdjudicator(adjudicator_Names[j])&&
+        obtainAffiliationDebater(OpeOppList[i])!=obtainAffiliationAdjudicator(adjudicator_Names[j])&&
+        obtainAffiliationDebater(CloGovList[i])!=obtainAffiliationAdjudicator(adjudicator_Names[j])&&
+        obtainAffiliationDebater(CloOppList[i])!=obtainAffiliationAdjudicator(adjudicator_Names[j])){
+        assigned_adju_data[i][0+coladd]=adjudicator_Names[j];
+        adjudicator_Names.splice(j, 1);
+       k++;
+          break;
+        }
+     }
+        iter_Max--;
+        if(iter_Max<0){
+        throw "Couldn't assign adjudicators";
+        }
+   }
+  }
+  ss.getSheetByName(RoundName).getRange(3,6,assigned_adju_data.length,colNumAdju).setValues(assigned_adju_data);
 }
 /*
 *  Function to assign rooms randomly in order of highest quality if more rooms are available than rounds.
