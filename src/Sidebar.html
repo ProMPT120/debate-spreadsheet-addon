@@ -22,6 +22,16 @@
   <input type="radio" name="radio-a" id="radio_4">
   <label for="radio_4">4 sides</label>
 </div>
+<b>Rounds internal pairing method ?</b>
+<div class="block form-group">
+<div>
+  <input type="radio" name="radio-bracket" id="radio_top_bottom" checked>
+  <label for="radio_top_bottom">Bracket pairing top-bottom</label>
+</div>
+<div>
+  <input type="radio" name="radio-bracket" id="radio_randomised">
+  <label for="radio_randomised">Bracket pairing smart randomisation</label>
+</div>
 <div>
   <input type="checkbox" id="checkbox_aff" checked>
   <label for="checkbox_aff">Prevent same affiliation matches before quarter-finals</label>
@@ -95,6 +105,13 @@ Integrates data for next round :
     else{
       sides_per_round =4;
     }
+    var pairing_method=0;
+    if (document.getElementById("radio_top_bottom").checked){
+      pairing_method=0;
+    }
+    else{
+      pairing_method =1;
+    }
     var limit_inter = document.getElementById("checkbox_aff").checked;
          google.script.run
         .withSuccessHandler(
@@ -108,7 +125,7 @@ Integrates data for next round :
             element.disabled = false;
           })
         .withUserObject(this)
-        .pairingGenerator(round_number,quarter_number,sides_per_round,limit_inter);
+        .pairingGenerator(round_number,quarter_number,sides_per_round,pairing_method,limit_inter);
   }
   function IntegratesData() { 
     this.disabled = true;

@@ -1,5 +1,6 @@
-// This addon allows to create spreadsheets to manage a debate tournament and fully populate pairings afterwards.
-// and initial pairings of round 1 and 2.
+/* This addon allows to create spreadsheets to manage a debate tournament and fully populate pairings afterwards
+   taking into account team affiliations and judges affiliation.
+*/
 /* 
   Variable name definition for elements used in the addon
 */
@@ -19,6 +20,7 @@ var ss = SpreadsheetApp.getActiveSpreadsheet();
 var ROUND_NUMBER = 7;
 var QUARTER_ROUND_NUMBER = 5;
 var SIDES_PER_ROUND = 4;
+var PAIRING_METHOD = 0;
 var LIMIT_INTER_AFF_ROUNDS = true;
 var TEAM_NUMBER = 20;
 var PLAYER_NUMBER = 40;
@@ -446,11 +448,12 @@ function randomIndexTeam(maxIndex)
 }
 
 
-function pairingGenerator(round_number,quarter_number,sides_per_round,limit_inter){
+function pairingGenerator(round_number,quarter_number,sides_per_round,pairing_method,limit_inter){
   ROUND_NUMBER=Number(round_number);
   QUARTER_ROUND_NUMBER=Number(quarter_number);
   SIDES_PER_ROUND=Number(sides_per_round);
   LIMIT_INTER_AFF_ROUNDS=limit_inter;
+  PAIRING_METHOD=Number(pairing_method);
   if(QUARTER_ROUND_NUMBER>ROUND_NUMBER){
     throw "quarter finals "+QUARTER_ROUND_NUMBER + " musn't be inferior to round number "+ROUND_NUMBER;
   }
@@ -468,8 +471,8 @@ function pairingGenerator(round_number,quarter_number,sides_per_round,limit_inte
       throw "Team Number not divisible by 2"
   }
     createPairingSheet(RoundName);
-    assignRooms(RoundName);    
-    pairingZeroTwoSide(RoundName);
+    assignRooms(RoundName);
+    pairingZeroTwoSide(RoundName);  
     assignAdjudicator2sides(RoundName);
     SpreadsheetApp.flush();
     /*
@@ -494,7 +497,12 @@ function pairingGenerator(round_number,quarter_number,sides_per_round,limit_inte
   */
   createPairingSheet(RoundName);
   assignRooms(RoundName);
-  pairingTwoSideScoreBoard(RoundName);
+  if(PAIRING_METHOD==1){
+    pairingTwoSideScoreBoard(RoundName);
+  }
+  else{
+    pairingTwoSideScoreBoard_Top_Bot(RoundName);
+  }
   assignAdjudicator2sides(RoundName);
   SpreadsheetApp.flush();
 } else if (currentRound>0&&currentRound<QUARTER_ROUND_NUMBER&&SIDES_PER_ROUND==4){

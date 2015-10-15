@@ -279,6 +279,55 @@ function pairingTwoSideScoreBoard(RoundName){
   ss.getSheetByName(RoundName).getRange(3, 2,randomised_order.length,2).setValues(randomised_order);
   
 }
+
+/**
+*
+* Function for top bottom pairing in 2 side mode
+
+*/
+function pairingTwoSideScoreBoard_Top_Bot(RoundName){
+  var remainingPairings=TEAM_NUMBER;
+  var currentRow=0;
+  var scoreBoardSheet = ss.getSheetByName(SHEET_SCOREBOARD);
+  var range = scoreBoardSheet.getRange(4, 1, TEAM_NUMBER,6);
+  var dataGrid = range.getValues();//Data sorted
+  var bracketSize;
+  var rand;
+  var properOpponent;
+  var govIndex=0;
+  var newGov = [];
+  var newOpp = [];
+  var itr=TEAM_NUMBER*40;
+  var values;
+  while(remainingPairings>0){
+  bracketSize=obtainBracketSize(dataGrid,currentRow);
+  values=scoreBoardSheet.getRange(currentRow+4, 2, bracketSize).getValues();
+   var internalBracketProgression=0;
+   var teamname_top,teamname_bottom;
+   while(values.length>0){
+         teamname_top=values[0];
+         teamname_bottom=values[values.length-1];
+         newGov.push(teamname_top);
+         newOpp.push(teamname_bottom);
+         values.splice(values.indexOf(teamname_top),1);
+         values.splice(values.indexOf(teamname_bottom),1);
+     //internalBracketProgression++;
+   }
+   currentRow=currentRow+bracketSize;
+   remainingPairings=remainingPairings-bracketSize;   
+  }
+  control2Sides(dataGrid,newGov,newOpp);
+  var pairingNumber=TEAM_NUMBER/SIDES_PER_ROUND; 
+  var randomised_order=createArray(pairingNumber,2);
+  for(var i = 0;i<pairingNumber;i++){
+    randomised_order[i][0]=String(newGov[i]);
+    randomised_order[i][1]=String(newOpp[i]);
+   }
+  shuffleArray(randomised_order);//Randomise for display in random order for pairings to prevent rankings positions
+  ss.getSheetByName(RoundName).getRange(3, 2,randomised_order.length,2).setValues(randomised_order);
+  
+  
+}
 /*
 * Function to check if we exceeded maximum iterations.
 */
