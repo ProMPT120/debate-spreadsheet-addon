@@ -11,7 +11,7 @@ Add-on designed primarily to manages tournaments for :
 ![Sucdi/Cusid Logo](docs/images/sucdi_cusid.png?raw=true)
 
 # Documentation
-The documentation to the add-on specifically isn't available yet. The source code has some comments to ease up the understanding. However most of the code was written due to the really well documented library of Google for [Google Developers spreadsheet](https://developers.google.com/apps-script/reference/spreadsheet/).
+The documentation to the add-on specifically isn't available yet. The source code has some comments to ease up the understanding. However most of the code was written due to the really well documented library of Google from [Google Developers spreadsheet](https://developers.google.com/apps-script/reference/spreadsheet/).
 # Installation
 The add-on should be approved and made available via the Google add-on gallery.
 
