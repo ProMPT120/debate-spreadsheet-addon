@@ -306,7 +306,7 @@ function pairingTwoSideScoreBoard_Top_Bot(RoundName){
    var teamname_top,teamname_bottom;
    while(values.length>0){
          teamname_top=values[0];
-         teamname_bottom=values[values.length-1];
+         teamname_bottom=values[values.length/2];
          newGov.push(teamname_top);
          newOpp.push(teamname_bottom);
          values.splice(values.indexOf(teamname_top),1);
