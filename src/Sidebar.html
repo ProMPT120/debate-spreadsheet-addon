@@ -1,161 +1,161 @@
 <!DOCTYPE html>
 <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons.css">
 <h1>Configuration</h1>
+<hr size=1>
+<h2>Pre-tournament settings</h2>
 <b>Define rounds for the tournament :</b>
 <div class="block form-group">
-<div class="inline form-group">
-  <label for="rounds">Round number</label>
-  <input type="number" id="rounds" style="width: 90px;" value="7" min="1" max="20">
-  </div>
-  <div class="inline form-group">
-  <label for="quarter">quarter finals round</label>
-  <input type="number" id="quarter" style="width: 60px;" value="5" min="1" max="18">
-</div>
+    <div class="inline form-group" title="Round Number is the total number of rounds - Including final rounds">
+        <label for="rounds">Round number</label>
+        <input type="number" id="rounds" style="width: 90px;" value="7" min="1" max="20">
+    </div>
+    <div class="inline form-group" title="Quarter finals round indicates the round where the quarter finals are (5th round by default)">
+        <label for="quarter">quarter finals round</label>
+        <input type="number" id="quarter" style="width: 60px;" value="5" min="1" max="18">
+    </div>
 </div>
 <b>Rounds comprised of two opposing or four opposing teams ?</b>
 <div class="block form-group">
-<div>
-  <input type="radio" name="radio-a" id="radio_2" checked>
-  <label for="radio_2">2 sides</label>
-</div>
-<div>
-  <input type="radio" name="radio-a" id="radio_4">
-  <label for="radio_4">4 sides</label>
-</div>
-<b>Rounds internal pairing method ?</b>
-<div class="block form-group">
-<div>
-  <input type="radio" name="radio-bracket" id="radio_top_bottom" checked>
-  <label for="radio_top_bottom">Bracket pairing top-bottom</label>
-</div>
-<div>
-  <input type="radio" name="radio-bracket" id="radio_randomised">
-  <label for="radio_randomised">Bracket pairing smart randomisation</label>
-</div>
-<div>
-  <input type="checkbox" id="checkbox_aff" checked>
-  <label for="checkbox_aff">Prevent same affiliation matches before quarter-finals</label>
-</div>
-<button class="action" id="scoreBoardGeneration">Generate Scoreboard</button>
-</div>
-<h1>Interaction</h1>
-Generates pairings for the rounds if possible :
-<div class="block form-group">
-<button class="action" id="roundGeneration">Generate Round</button>
-</div>
-Integrates data for next round :
-<div class="block form-group">
-<button class="action" id="dataIntegration">Integrate data</button>
-</div>
-<div class="sidebar bottom">
-<img alt="Add-on logo" class="logo" width="40" height="40"
-      src="https://raw.githubusercontent.com/ProMPT120/debate-spreadsheet-addon/master/docs/images/Logo.jpg">
-<b>By Ashley Manraj</b>
-</div>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js">
-</script>
-<script>
-  /**
-   * On document load, assign click handlers to each button.
-    Taken off for african tournament.
-   */
-   $(function() {
-    $('#scoreBoardGeneration').click(GenerateScoreboard);
-    $('#roundGeneration').click(GenerateRound);
-    $('#dataIntegration').click(IntegratesData);
-   });
-   function GenerateScoreboard() {
-    this.disabled = true;
-    $('#error').remove();
-    var round_number= document.getElementById("rounds").value;
-    var quarter_number = document.getElementById("quarter").value;
-    var sides_per_round =2;
-    if (document.getElementById("radio_2").checked){
-      sides_per_round=2;
-    }
-    else{
-      sides_per_round =4;
-    }
-    var limit_inter = document.getElementById("checkbox_aff").checked;
-        google.script.run
-        .withSuccessHandler(
-          function(msg, element) {
-          //  $('#translated-text').val(translatedText);
-            element.disabled = false;
-            
-          })
-        .withFailureHandler(
-          function(msg, element) {
-            showError(msg, $('#scoreBoardGeneration'));
-            element.disabled = false;
-          })
-        .withUserObject(this)
-        .acquireData(round_number,quarter_number,sides_per_round,limit_inter);
-  }
-  
-     function GenerateRound() { 
-    this.disabled = true;
-    $('#error').remove();
-    var round_number= document.getElementById("rounds").value;
-    var quarter_number = document.getElementById("quarter").value;
-    var sides_per_round =2;
-    if (document.getElementById("radio_2").checked){
-      sides_per_round=2;
-    }
-    else{
-      sides_per_round =4;
-    }
-    var pairing_method=0;
-    if (document.getElementById("radio_top_bottom").checked){
-      pairing_method=0;
-    }
-    else{
-      pairing_method =1;
-    }
-    var limit_inter = document.getElementById("checkbox_aff").checked;
-         google.script.run
-        .withSuccessHandler(
-          function(msg, element) {
-          //  $('#translated-text').val(translatedText);
-            element.disabled = false;
-          })
-        .withFailureHandler(
-          function(msg, element) {
-            showError(msg, $('#roundGeneration'));
-            element.disabled = false;
-          })
-        .withUserObject(this)
-        .pairingGenerator(round_number,quarter_number,sides_per_round,pairing_method,limit_inter);
-  }
-  function IntegratesData() { 
-    this.disabled = true;
-    $('#error').remove();
-    var round_number= document.getElementById("rounds").value;
-    var quarter_number = document.getElementById("quarter").value;
-    var sides_per_round =2;
-    if (document.getElementById("radio_2").checked){
-      sides_per_round=2;
-    }
-    else{
-      sides_per_round =4;
-    }
-    var limit_inter = document.getElementById("checkbox_aff").checked;
-         google.script.run
-        .withSuccessHandler(
-          function(msg, element) {
-          //  $('#translated-text').val(translatedText);
-            element.disabled = false;
-          })
-        .withFailureHandler(
-          function(msg, element) {
-            showError(msg, $('#dataIntegration'));
-            element.disabled = false;
-          })
-        .withUserObject(this)
-        .dataIntegration(round_number,quarter_number,sides_per_round,limit_inter);
-  }
-  
-  /*
+    <div title="2 teams vs 2 teams debating rounds">
+        <input type="radio" name="radio-a" id="radio_2" checked>
+        <label for="radio_2">2 sides</label>
+    </div>
+    <div title="4 teams vs 4 teams debating rounds">
+        <input type="radio" name="radio-a" id="radio_4">
+        <label for="radio_4">4 sides</label>
+    </div>
+    <b>Rounds internal pairing method ?</b>
+    <div class="block form-group">
+        <div title="For a tournament with N teams, the top N/2 teams will debate against the bottom N/2 teams">
+            <input type="radio" name="radio-bracket" id="radio_top_bottom" checked>
+            <label for="radio_top_bottom">Bracket pairing top-bottom</label>
+        </div>
+        <div title="This will put all the teams against each other at random">
+            <input type="radio" name="radio-bracket" id="radio_randomised">
+            <label for="radio_randomised">Bracket pairing smart randomisation</label>
+        </div>
+        <div title="This will make sure the adjudicators from one debating club is not judging his/her club's rounds">
+            <input type="checkbox" id="checkbox_aff" checked>
+            <label for="checkbox_aff">Prevent same affiliation matches before quarter-finals</label>
+        </div>
+        <button class="action" id="scoreBoardGeneration">Generate Scoreboard</button>
+    </div>
+    <hr size=1>
+    <h1>Tournament settings</h1>
+    Integrates data for next round :
+    <div class="block form-group" title="Will record the scores in order to generate the next rounds ">
+        <button class="action" id="dataIntegration">Integrate data</button>
+    </div>
+    Generates pairings for the rounds if possible :
+    <div class="block form-group" title="Generates rounds after all the scores have been typed in">
+        <button class="action" id="roundGeneration">Generate Round</button>
+    </div>
+    <div class="sidebar bottom">
+        <img alt="Add-on logo" class="logo" width="40" height="40" src="https://raw.githubusercontent.com/ProMPT120/debate-spreadsheet-addon/master/docs/images/Logo.jpg">
+        <b>By Ashley Manraj</b>
+    </div>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js">
+    </script>
+    <script>
+        /**
+                                                                                                                                   * On document load, assign click handlers to each button.
+                                                                                                                                    Taken off for african tournament.
+                                                                                                                                   */
+        $(function() {
+            $('#scoreBoardGeneration').click(GenerateScoreboard);
+            $('#roundGeneration').click(GenerateRound);
+            $('#dataIntegration').click(IntegratesData);
+        });
+
+        function GenerateScoreboard() {
+            this.disabled = true;
+            $('#error').remove();
+            var round_number = document.getElementById("rounds").value;
+            var quarter_number = document.getElementById("quarter").value;
+            var sides_per_round = 2;
+            if (document.getElementById("radio_2").checked) {
+                sides_per_round = 2;
+            } else {
+                sides_per_round = 4;
+            }
+            var limit_inter = document.getElementById("checkbox_aff").checked;
+            google.script.run
+                .withSuccessHandler(
+                    function(msg, element) {
+                        //  $('#translated-text').val(translatedText);
+                        element.disabled = false;
+
+                    })
+                .withFailureHandler(
+                    function(msg, element) {
+                        showError(msg, $('#scoreBoardGeneration'));
+                        element.disabled = false;
+                    })
+                .withUserObject(this)
+                .acquireData(round_number, quarter_number, sides_per_round, limit_inter);
+        }
+
+        function GenerateRound() {
+            this.disabled = true;
+            $('#error').remove();
+            var round_number = document.getElementById("rounds").value;
+            var quarter_number = document.getElementById("quarter").value;
+            var sides_per_round = 2;
+            if (document.getElementById("radio_2").checked) {
+                sides_per_round = 2;
+            } else {
+                sides_per_round = 4;
+            }
+            var pairing_method = 0;
+            if (document.getElementById("radio_top_bottom").checked) {
+                pairing_method = 0;
+            } else {
+                pairing_method = 1;
+            }
+            var limit_inter = document.getElementById("checkbox_aff").checked;
+            google.script.run
+                .withSuccessHandler(
+                    function(msg, element) {
+                        //  $('#translated-text').val(translatedText);
+                        element.disabled = false;
+                    })
+                .withFailureHandler(
+                    function(msg, element) {
+                        showError(msg, $('#roundGeneration'));
+                        element.disabled = false;
+                    })
+                .withUserObject(this)
+                .pairingGenerator(round_number, quarter_number, sides_per_round, pairing_method, limit_inter);
+        }
+
+        function IntegratesData() {
+            this.disabled = true;
+            $('#error').remove();
+            var round_number = document.getElementById("rounds").value;
+            var quarter_number = document.getElementById("quarter").value;
+            var sides_per_round = 2;
+            if (document.getElementById("radio_2").checked) {
+                sides_per_round = 2;
+            } else {
+                sides_per_round = 4;
+            }
+            var limit_inter = document.getElementById("checkbox_aff").checked;
+            google.script.run
+                .withSuccessHandler(
+                    function(msg, element) {
+                        //  $('#translated-text').val(translatedText);
+                        element.disabled = false;
+                    })
+                .withFailureHandler(
+                    function(msg, element) {
+                        showError(msg, $('#dataIntegration'));
+                        element.disabled = false;
+                    })
+                .withUserObject(this)
+                .dataIntegration(round_number, quarter_number, sides_per_round, limit_inter);
+        }
+
+        /*
   $(function() {
     $('#run-translation').click(runTranslation);
     $('#insert-text').click(insertText);
@@ -163,27 +163,27 @@ Integrates data for next round :
         .withFailureHandler(showError).getPreferences();
   });
 */
-  /**
-   * Callback function that populates the origin and destination selection
-   * boxes with user preferences from the server.
-   *
-   * @param {Object} languagePrefs The saved origin and destination languages.
-   
-  function loadPreferences(languagePrefs) {
-    $('input:radio[name="origin"]')
-        .filter('[value=' + languagePrefs.originLang + ']')
-        .attr('checked', true);
-    $('input:radio[name="dest"]')
-        .filter('[value=' + languagePrefs.destLang + ']')
-        .attr('checked', true);
-  }
-   */ 
+        /**
+         * Callback function that populates the origin and destination selection
+         * boxes with user preferences from the server.
+         *
+         * @param {Object} languagePrefs The saved origin and destination languages.
+         
+        function loadPreferences(languagePrefs) {
+          $('input:radio[name="origin"]')
+              .filter('[value=' + languagePrefs.originLang + ']')
+              .attr('checked', true);
+          $('input:radio[name="dest"]')
+              .filter('[value=' + languagePrefs.destLang + ']')
+              .attr('checked', true);
+        }
+         */
 
-  /**
-   * Runs a server-side function to translate the user-selected text and update
-   * the sidebar UI with the resulting translation.
-   */
-   /*
+        /**
+         * Runs a server-side function to translate the user-selected text and update
+         * the sidebar UI with the resulting translation.
+         */
+        /*
   function runTranslation() {
     this.disabled = true;
     $('#error').remove();
@@ -205,11 +205,11 @@ Integrates data for next round :
         .runTranslation(origin, dest, savePrefs);
   }
   */
-  /**
-   * Runs a server-side function to insert the translated text into the document
-   * at the user's cursor or selection.
-   */
-   /*
+        /**
+         * Runs a server-side function to insert the translated text into the document
+         * at the user's cursor or selection.
+         */
+        /*
   function insertText() {
     this.disabled = true;
     $('#error').remove();
@@ -227,14 +227,14 @@ Integrates data for next round :
         .insertText($('#translated-text').val());
   }
   */
-  /**
-   * Inserts a div that contains an error message after a given element.
-   *
-   * @param msg The error message to display.
-   * @param element The element after which to display the error.
-   */
-  function showError(msg, element) {
-    var div = $('<div id="error" class="error">' + msg + '</div>');
-    $(element).after(div);
-  }
-</script>
+        /**
+         * Inserts a div that contains an error message after a given element.
+         *
+         * @param msg The error message to display.
+         * @param element The element after which to display the error.
+         */
+        function showError(msg, element) {
+            var div = $('<div id="error" class="error">' + msg + '</div>');
+            $(element).after(div);
+        }
+    </script>
